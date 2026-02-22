@@ -13,6 +13,9 @@ import {
   ChevronLeft,
   ChevronRight,
   Sparkles,
+  CalendarClock,
+  FileBarChart,
+  Bell,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -25,6 +28,9 @@ const navItems = [
   { title: "Finances", icon: DollarSign, path: "/admin/finances" },
   { title: "Loyalty", icon: Gift, path: "/admin/loyalty" },
   { title: "Analytics", icon: BarChart3, path: "/admin/analytics" },
+  { title: "Scheduling", icon: CalendarClock, path: "/admin/scheduling" },
+  { title: "Reports", icon: FileBarChart, path: "/admin/reports" },
+  { title: "Reminders", icon: Bell, path: "/admin/reminders" },
   { title: "Settings", icon: Settings, path: "/admin/settings" },
 ];
 

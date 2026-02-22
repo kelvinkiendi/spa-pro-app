@@ -12,6 +12,9 @@ import Inventory from "./pages/admin/Inventory";
 import Finances from "./pages/admin/Finances";
 import Loyalty from "./pages/admin/Loyalty";
 import Analytics from "./pages/admin/Analytics";
+import Scheduling from "./pages/admin/Scheduling";
+import Reports from "./pages/admin/Reports";
+import Reminders from "./pages/admin/Reminders";
 import AdminSettings from "./pages/admin/Settings";
 import NotFound from "./pages/NotFound";
 
@@ -36,6 +39,9 @@ const App = () => (
           <Route path="/admin/finances" element={<Finances />} />
           <Route path="/admin/loyalty" element={<Loyalty />} />
           <Route path="/admin/analytics" element={<Analytics />} />
+          <Route path="/admin/scheduling" element={<Scheduling />} />
+          <Route path="/admin/reports" element={<Reports />} />
+          <Route path="/admin/reminders" element={<Reminders />} />
           <Route path="/admin/settings" element={<AdminSettings />} />
 
           <Route path="*" element={<NotFound />} />

@@ -14,7 +14,141 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      reminder_settings: {
+        Row: {
+          created_at: string
+          id: string
+          is_enabled: boolean
+          message_template: string
+          reminder_type: string
+          timing_minutes: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_enabled?: boolean
+          message_template?: string
+          reminder_type: string
+          timing_minutes?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_enabled?: boolean
+          message_template?: string
+          reminder_type?: string
+          timing_minutes?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      saved_reports: {
+        Row: {
+          created_at: string
+          date_range_end: string | null
+          date_range_start: string | null
+          filters: Json
+          id: string
+          name: string
+          report_type: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          date_range_end?: string | null
+          date_range_start?: string | null
+          filters?: Json
+          id?: string
+          name: string
+          report_type: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          date_range_end?: string | null
+          date_range_start?: string | null
+          filters?: Json
+          id?: string
+          name?: string
+          report_type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      staff_schedules: {
+        Row: {
+          branch: string
+          created_at: string
+          day_of_week: number
+          end_time: string
+          id: string
+          is_available: boolean
+          start_time: string
+          tech_name: string
+          updated_at: string
+        }
+        Insert: {
+          branch?: string
+          created_at?: string
+          day_of_week: number
+          end_time: string
+          id?: string
+          is_available?: boolean
+          start_time: string
+          tech_name: string
+          updated_at?: string
+        }
+        Update: {
+          branch?: string
+          created_at?: string
+          day_of_week?: number
+          end_time?: string
+          id?: string
+          is_available?: boolean
+          start_time?: string
+          tech_name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      time_off_requests: {
+        Row: {
+          created_at: string
+          end_date: string
+          id: string
+          manager_notes: string | null
+          reason: string | null
+          start_date: string
+          status: string
+          tech_name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          end_date: string
+          id?: string
+          manager_notes?: string | null
+          reason?: string | null
+          start_date: string
+          status?: string
+          tech_name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          end_date?: string
+          id?: string
+          manager_notes?: string | null
+          reason?: string | null
+          start_date?: string
+          status?: string
+          tech_name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
