@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { NavLink, useLocation } from "react-router-dom";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard,
   Calendar,
@@ -16,8 +16,10 @@ import {
   CalendarClock,
   FileBarChart,
   Bell,
+  LogOut,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/hooks/useAuth";
 
 const navItems = [
   { title: "Dashboard", icon: LayoutDashboard, path: "/admin" },
@@ -37,6 +39,13 @@ const navItems = [
 export function AdminSidebar() {
   const [collapsed, setCollapsed] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
+  const { signOut } = useAuth();
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate("/admin-login");
+  };
 
   return (
     <aside
@@ -85,6 +94,15 @@ export function AdminSidebar() {
           );
         })}
       </nav>
+
+      {/* Sign Out */}
+      <button
+        onClick={handleSignOut}
+        className="flex items-center gap-3 mx-3 mb-2 px-3 py-2.5 rounded-lg text-sm font-medium text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors"
+      >
+        <LogOut className="h-5 w-5 shrink-0" />
+        {!collapsed && <span>Sign Out</span>}
+      </button>
 
       {/* Collapse toggle */}
       <button
