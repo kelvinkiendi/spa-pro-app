@@ -7,6 +7,7 @@ import { AuthProvider } from "@/hooks/useAuth";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 
 // Public
+import Index from "./pages/Index";
 import ClientBooking from "./pages/ClientBooking";
 import NotFound from "./pages/NotFound";
 
@@ -55,7 +56,8 @@ const App = () => (
         <AuthProvider>
           <Routes>
             {/* Public */}
-            <Route path="/" element={<ClientBooking />} />
+            <Route path="/" element={<Index />} />
+            <Route path="/book" element={<ClientBooking />} />
 
             {/* Login pages */}
             <Route path="/admin-login" element={<AdminLogin />} />
