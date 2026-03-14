@@ -49,8 +49,12 @@ export function LoginPage({ title, subtitle, expectedRole, redirectTo, accentCol
       </Link>
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <div className={`inline-flex h-14 w-14 items-center justify-center rounded-2xl ${accentColor} mb-4`}>
-            <Sparkles className="h-7 w-7 text-primary-foreground" />
+          <div className={`inline-flex h-14 w-14 items-center justify-center rounded-2xl ${accentColor} mb-4 overflow-hidden`}>
+            {settings.logo_url ? (
+              <img src={settings.logo_url} alt={settings.app_name} className="h-full w-full object-contain" />
+            ) : (
+              <Sparkles className="h-7 w-7 text-primary-foreground" />
+            )}
           </div>
           <h1 className="font-display text-3xl font-bold text-foreground">{title}</h1>
           <p className="text-muted-foreground mt-2">{subtitle}</p>
