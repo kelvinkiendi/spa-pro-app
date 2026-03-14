@@ -95,10 +95,14 @@ const AdminSettings = () => {
   return (
     <AdminLayout>
       <div className="space-y-6">
+        {/* Branding */}
+        <BrandingSettings />
+
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-display font-bold text-foreground">User Management</h1>
             <p className="text-muted-foreground mt-1">Create and manage staff accounts</p>
+          </div>
           </div>
           <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
             <DialogTrigger asChild>
