@@ -21,6 +21,7 @@ export function TechLayout({ children }: { children: ReactNode }) {
   const location = useLocation();
   const navigate = useNavigate();
   const { signOut } = useAuth();
+  const { settings } = useAppSettings();
 
   const handleSignOut = async () => {
     await signOut();
