@@ -22,6 +22,7 @@ export function ManagerLayout({ children }: { children: ReactNode }) {
   const location = useLocation();
   const navigate = useNavigate();
   const { signOut, fullName } = useAuth();
+  const { settings } = useAppSettings();
 
   const handleSignOut = async () => {
     await signOut();
