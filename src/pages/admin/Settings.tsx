@@ -11,6 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { UserPlus, Trash2, Loader2, Users, ShieldCheck, Scissors, Building2 } from "lucide-react";
+import { BrandingSettings } from "@/components/admin/BrandingSettings";
 
 interface ManagedUser {
   id: string;
@@ -94,6 +95,9 @@ const AdminSettings = () => {
   return (
     <AdminLayout>
       <div className="space-y-6">
+        {/* Branding */}
+        <BrandingSettings />
+
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-display font-bold text-foreground">User Management</h1>

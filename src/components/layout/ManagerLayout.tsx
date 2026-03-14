@@ -6,6 +6,7 @@ import {
 import { cn } from "@/lib/utils";
 import { AdminHeader } from "./AdminHeader";
 import { useAuth } from "@/hooks/useAuth";
+import { useAppSettings } from "@/hooks/useAppSettings";
 
 const navItems = [
   { title: "Dashboard", icon: ClipboardList, path: "/manager" },
@@ -21,6 +22,7 @@ export function ManagerLayout({ children }: { children: ReactNode }) {
   const location = useLocation();
   const navigate = useNavigate();
   const { signOut, fullName } = useAuth();
+  const { settings } = useAppSettings();
 
   const handleSignOut = async () => {
     await signOut();
@@ -36,12 +38,16 @@ export function ManagerLayout({ children }: { children: ReactNode }) {
         )}
       >
         <div className="flex items-center gap-3 px-5 py-6 border-b border-sidebar-border">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent shrink-0">
-            <Sparkles className="h-5 w-5 text-accent-foreground" />
+          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent shrink-0 overflow-hidden">
+            {settings.logo_url ? (
+              <img src={settings.logo_url} alt={settings.app_name} className="h-full w-full object-contain" />
+            ) : (
+              <Sparkles className="h-5 w-5 text-accent-foreground" />
+            )}
           </div>
           {!collapsed && (
             <div className="overflow-hidden">
-              <h1 className="font-display text-lg font-bold text-sidebar-accent-foreground tracking-tight">GlowSpa</h1>
+              <h1 className="font-display text-lg font-bold text-sidebar-accent-foreground tracking-tight">{settings.app_name}</h1>
               <p className="text-xs text-sidebar-foreground">Branch Manager</p>
             </div>
           )}

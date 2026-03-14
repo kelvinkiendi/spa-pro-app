@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
+import { useAppSettings } from "@/hooks/useAppSettings";
 
 const navItems = [
   { title: "Dashboard", icon: LayoutDashboard, path: "/admin" },
@@ -41,6 +42,7 @@ export function AdminSidebar() {
   const location = useLocation();
   const navigate = useNavigate();
   const { signOut } = useAuth();
+  const { settings } = useAppSettings();
 
   const handleSignOut = async () => {
     await signOut();
@@ -56,13 +58,17 @@ export function AdminSidebar() {
     >
       {/* Logo */}
       <div className="flex items-center gap-3 px-5 py-6 border-b border-sidebar-border">
-        <div className="flex h-9 w-9 items-center justify-center rounded-lg gradient-primary shrink-0">
-          <Sparkles className="h-5 w-5 text-sidebar-primary-foreground" />
+        <div className="flex h-9 w-9 items-center justify-center rounded-lg gradient-primary shrink-0 overflow-hidden">
+          {settings.logo_url ? (
+            <img src={settings.logo_url} alt={settings.app_name} className="h-full w-full object-contain" />
+          ) : (
+            <Sparkles className="h-5 w-5 text-sidebar-primary-foreground" />
+          )}
         </div>
         {!collapsed && (
           <div className="overflow-hidden">
             <h1 className="font-display text-lg font-bold text-sidebar-accent-foreground tracking-tight">
-              GlowSpa
+              {settings.app_name}
             </h1>
             <p className="text-xs text-sidebar-foreground">Management</p>
           </div>
