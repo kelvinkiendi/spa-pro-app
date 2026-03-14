@@ -6,6 +6,7 @@ import {
 import { cn } from "@/lib/utils";
 import { AdminHeader } from "./AdminHeader";
 import { useAuth } from "@/hooks/useAuth";
+import { useAppSettings } from "@/hooks/useAppSettings";
 
 const navItems = [
   { title: "Dashboard", icon: ClipboardList, path: "/manager" },
