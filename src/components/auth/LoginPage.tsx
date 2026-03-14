@@ -21,6 +21,7 @@ export function LoginPage({ title, subtitle, expectedRole, redirectTo, accentCol
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const { signIn } = useAuth();
+  const { settings } = useAppSettings();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
