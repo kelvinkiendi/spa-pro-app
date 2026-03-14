@@ -1,10 +1,10 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Sparkles, LogIn, Loader2 } from "lucide-react";
+import { Sparkles, LogIn, Loader2, ArrowLeft } from "lucide-react";
 
 interface LoginPageProps {
   title: string;
