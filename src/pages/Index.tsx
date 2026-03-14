@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
-
 import { Sparkles, ShieldCheck, Users, Paintbrush } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { useAppSettings } from "@/hooks/useAppSettings";
 
 const roles = [
   {
