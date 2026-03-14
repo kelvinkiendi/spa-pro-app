@@ -103,7 +103,6 @@ const AdminSettings = () => {
             <h1 className="text-2xl font-display font-bold text-foreground">User Management</h1>
             <p className="text-muted-foreground mt-1">Create and manage staff accounts</p>
           </div>
-          </div>
           <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
             <DialogTrigger asChild>
               <Button className="gap-2">
