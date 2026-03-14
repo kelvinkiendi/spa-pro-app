@@ -41,6 +41,10 @@ export function LoginPage({ title, subtitle, expectedRole, redirectTo, accentCol
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
+      <Link to="/" className="absolute top-6 left-6 flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
+        <ArrowLeft className="h-4 w-4" />
+        Back to portal
+      </Link>
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <div className={`inline-flex h-14 w-14 items-center justify-center rounded-2xl ${accentColor} mb-4`}>
