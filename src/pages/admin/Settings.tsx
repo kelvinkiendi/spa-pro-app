@@ -99,6 +99,9 @@ const AdminSettings = () => {
         {/* Branding */}
         <BrandingSettings />
 
+        {/* Branches */}
+        <BranchManagement />
+
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-display font-bold text-foreground">User Management</h1>
