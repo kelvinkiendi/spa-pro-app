@@ -15,6 +15,7 @@ const navItems = [
   { title: "Attendance", icon: UserCheck, path: "/manager/attendance" },
   { title: "Walk-ins", icon: Users, path: "/manager/walkins" },
   { title: "Clients", icon: Scissors, path: "/manager/clients" },
+  { title: "Inventory", icon: Package, path: "/manager/inventory" },
 ];
 
 export function ManagerLayout({ children }: { children: ReactNode }) {
