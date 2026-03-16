@@ -37,6 +37,7 @@ const ManagerScheduling = lazy(() => import("./pages/manager/Scheduling"));
 const Attendance = lazy(() => import("./pages/manager/Attendance"));
 const WalkIns = lazy(() => import("./pages/manager/WalkIns"));
 const ManagerClients = lazy(() => import("./pages/manager/Clients"));
+const ManagerInventory = lazy(() => import("./pages/manager/Inventory"));
 
 const TechDashboard = lazy(() => import("./pages/tech/Dashboard"));
 const TechBookings = lazy(() => import("./pages/tech/Bookings"));
