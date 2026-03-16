@@ -12,6 +12,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { UserPlus, Trash2, Loader2, Users, ShieldCheck, Scissors, Building2 } from "lucide-react";
 import { BrandingSettings } from "@/components/admin/BrandingSettings";
+import { BranchManagement } from "@/components/admin/BranchManagement";
 
 interface ManagedUser {
   id: string;
@@ -97,6 +98,9 @@ const AdminSettings = () => {
       <div className="space-y-6">
         {/* Branding */}
         <BrandingSettings />
+
+        {/* Branches */}
+        <BranchManagement />
 
         <div className="flex items-center justify-between">
           <div>
