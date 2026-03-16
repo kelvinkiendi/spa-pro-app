@@ -1,7 +1,7 @@
 import { ReactNode, useState } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import {
-  Calendar, Users, Clock, UserCheck, Scissors, LogOut, ChevronLeft, ChevronRight, Sparkles, ClipboardList,
+  Calendar, Users, Clock, UserCheck, Scissors, LogOut, ChevronLeft, ChevronRight, Sparkles, ClipboardList, Package,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { AdminHeader } from "./AdminHeader";
