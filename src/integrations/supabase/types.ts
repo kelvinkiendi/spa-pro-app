@@ -86,6 +86,116 @@ export type Database = {
         }
         Relationships: []
       }
+      clients: {
+        Row: {
+          branch: string
+          created_at: string
+          email: string | null
+          id: string
+          name: string
+          notes: string | null
+          phone: string | null
+          updated_at: string
+        }
+        Insert: {
+          branch?: string
+          created_at?: string
+          email?: string | null
+          id?: string
+          name: string
+          notes?: string | null
+          phone?: string | null
+          updated_at?: string
+        }
+        Update: {
+          branch?: string
+          created_at?: string
+          email?: string | null
+          id?: string
+          name?: string
+          notes?: string | null
+          phone?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      inventory: {
+        Row: {
+          branch: string
+          category: string
+          created_at: string
+          id: string
+          min_stock: number
+          name: string
+          stock: number
+          supplier: string | null
+          unit_price: number
+          updated_at: string
+        }
+        Insert: {
+          branch?: string
+          category?: string
+          created_at?: string
+          id?: string
+          min_stock?: number
+          name: string
+          stock?: number
+          supplier?: string | null
+          unit_price?: number
+          updated_at?: string
+        }
+        Update: {
+          branch?: string
+          category?: string
+          created_at?: string
+          id?: string
+          min_stock?: number
+          name?: string
+          stock?: number
+          supplier?: string | null
+          unit_price?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      inventory_usage: {
+        Row: {
+          branch: string
+          created_at: string
+          id: string
+          inventory_id: string
+          quantity_used: number
+          reason: string | null
+          used_by: string
+        }
+        Insert: {
+          branch?: string
+          created_at?: string
+          id?: string
+          inventory_id: string
+          quantity_used?: number
+          reason?: string | null
+          used_by: string
+        }
+        Update: {
+          branch?: string
+          created_at?: string
+          id?: string
+          inventory_id?: string
+          quantity_used?: number
+          reason?: string | null
+          used_by?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inventory_usage_inventory_id_fkey"
+            columns: ["inventory_id"]
+            isOneToOne: false
+            referencedRelation: "inventory"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           branch: string
@@ -263,6 +373,51 @@ export type Database = {
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
           user_id?: string
+        }
+        Relationships: []
+      }
+      walk_ins: {
+        Row: {
+          arrived_at: string
+          branch: string
+          client_name: string
+          client_phone: string | null
+          created_at: string
+          created_by: string | null
+          id: string
+          notes: string | null
+          service: string
+          status: string
+          tech_name: string
+          updated_at: string
+        }
+        Insert: {
+          arrived_at?: string
+          branch?: string
+          client_name: string
+          client_phone?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          notes?: string | null
+          service: string
+          status?: string
+          tech_name: string
+          updated_at?: string
+        }
+        Update: {
+          arrived_at?: string
+          branch?: string
+          client_name?: string
+          client_phone?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          notes?: string | null
+          service?: string
+          status?: string
+          tech_name?: string
+          updated_at?: string
         }
         Relationships: []
       }

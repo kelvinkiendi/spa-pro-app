@@ -1,81 +1,195 @@
+import { useState, useEffect } from "react";
 import { AdminLayout } from "@/components/layout/AdminLayout";
 import { Button } from "@/components/ui/button";
-import { Plus, Search, Star, MoreVertical } from "lucide-react";
+import { Plus, Search, Star, MoreVertical, Trash2, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/hooks/use-toast";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 
-const technicians = [
-  { name: "Lisa Martinez", specialty: "Gel & Nail Art", rating: 4.9, appointments: 148, commission: 35, revenue: "$12,400", status: "active", avatar: "L" },
-  { name: "Maria Santos", specialty: "Pedicure Specialist", rating: 4.8, appointments: 132, commission: 30, revenue: "$10,800", status: "active", avatar: "M" },
-  { name: "Tina Rodriguez", specialty: "Acrylic & Extensions", rating: 4.7, appointments: 118, commission: 35, revenue: "$11,200", status: "active", avatar: "T" },
-  { name: "Jade Williams", specialty: "Spa Treatments", rating: 4.9, appointments: 96, commission: 30, revenue: "$8,600", status: "on-leave", avatar: "J" },
-  { name: "Amy Lee", specialty: "Dip Powder Expert", rating: 4.6, appointments: 104, commission: 32, revenue: "$9,100", status: "active", avatar: "A" },
-];
+interface TechUser {
+  id: string;
+  email: string;
+  full_name: string;
+  branch: string;
+  created_at: string;
+}
 
 const Technicians = () => {
+  const [techs, setTechs] = useState<TechUser[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [creating, setCreating] = useState(false);
+  const [form, setForm] = useState({ email: "", password: "", full_name: "", branch: "main" });
+
+  const fetchTechs = async () => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+      const { data, error } = await supabase.functions.invoke("manage-users", {
+        body: { action: "list" },
+      });
+      if (error) throw error;
+      const nailTechs = (data.users || []).filter((u: any) => u.role === "nail_tech");
+      setTechs(nailTechs);
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => { fetchTechs(); }, []);
+
+  const handleCreate = async () => {
+    if (!form.email || !form.password || !form.full_name) {
+      toast({ title: "Missing fields", description: "Please fill all required fields", variant: "destructive" });
+      return;
+    }
+    setCreating(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("manage-users", {
+        body: { action: "create", ...form, role: "nail_tech" },
+      });
+      if (error) throw error;
+      toast({ title: "Technician added", description: `${form.full_name} has been added` });
+      setForm({ email: "", password: "", full_name: "", branch: "main" });
+      setDialogOpen(false);
+      fetchTechs();
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    } finally {
+      setCreating(false);
+    }
+  };
+
+  const handleDelete = async (tech: TechUser) => {
+    try {
+      const { error } = await supabase.functions.invoke("manage-users", {
+        body: { action: "delete", user_id: tech.id },
+      });
+      if (error) throw error;
+      toast({ title: "Removed", description: `${tech.full_name} has been removed` });
+      fetchTechs();
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    }
+  };
+
+  const filtered = techs.filter(t =>
+    t.full_name?.toLowerCase().includes(search.toLowerCase()) ||
+    t.email?.toLowerCase().includes(search.toLowerCase())
+  );
+
   return (
     <AdminLayout>
       <div className="space-y-6">
         <div className="flex items-center justify-between flex-wrap gap-4">
           <div>
             <h1 className="text-2xl font-display font-bold text-foreground">Nail Technicians</h1>
-            <p className="text-muted-foreground mt-1">Manage your team and track performance</p>
+            <p className="text-muted-foreground mt-1">Manage your team</p>
           </div>
-          <Button className="gradient-primary text-primary-foreground gap-2">
-            <Plus className="h-4 w-4" />
-            Add Technician
-          </Button>
+          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+            <DialogTrigger asChild>
+              <Button className="gradient-primary text-primary-foreground gap-2">
+                <Plus className="h-4 w-4" />Add Technician
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Add Nail Technician</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4 pt-2">
+                <div className="space-y-2">
+                  <Label>Full Name *</Label>
+                  <Input value={form.full_name} onChange={e => setForm(f => ({ ...f, full_name: e.target.value }))} placeholder="e.g. Lisa Martinez" />
+                </div>
+                <div className="space-y-2">
+                  <Label>Email *</Label>
+                  <Input type="email" value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} placeholder="lisa@example.com" />
+                </div>
+                <div className="space-y-2">
+                  <Label>Password *</Label>
+                  <Input type="password" value={form.password} onChange={e => setForm(f => ({ ...f, password: e.target.value }))} placeholder="Minimum 6 characters" />
+                </div>
+                <div className="space-y-2">
+                  <Label>Branch</Label>
+                  <Select value={form.branch} onValueChange={v => setForm(f => ({ ...f, branch: v }))}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="main">Main</SelectItem>
+                      <SelectItem value="branch-1">Branch 1</SelectItem>
+                      <SelectItem value="branch-2">Branch 2</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <Button className="w-full gradient-primary text-primary-foreground" onClick={handleCreate} disabled={creating}>
+                  {creating && <Loader2 className="h-4 w-4 animate-spin mr-2" />}Add Technician
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
         </div>
 
         <div className="relative max-w-sm">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input placeholder="Search technicians..." className="pl-10" />
+          <Input placeholder="Search technicians..." className="pl-10" value={search} onChange={e => setSearch(e.target.value)} />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-          {technicians.map((tech, i) => (
-            <div key={i} className="rounded-xl bg-card p-5 shadow-card border hover:shadow-elevated transition-shadow animate-fade-in">
-              <div className="flex items-start justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="h-12 w-12 rounded-full gradient-primary flex items-center justify-center text-lg font-bold text-primary-foreground">
-                    {tech.avatar}
+        {loading ? (
+          <div className="flex justify-center py-12"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>
+        ) : filtered.length === 0 ? (
+          <div className="text-center py-12 text-muted-foreground">No technicians found. Add one to get started.</div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+            {filtered.map((tech) => (
+              <div key={tech.id} className="rounded-xl bg-card p-5 shadow-card border hover:shadow-elevated transition-shadow animate-fade-in">
+                <div className="flex items-start justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="h-12 w-12 rounded-full gradient-primary flex items-center justify-center text-lg font-bold text-primary-foreground">
+                      {tech.full_name?.[0]?.toUpperCase() || "?"}
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-card-foreground">{tech.full_name}</h3>
+                      <p className="text-xs text-muted-foreground">{tech.email}</p>
+                    </div>
+                  </div>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive">
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Remove {tech.full_name}?</AlertDialogTitle>
+                        <AlertDialogDescription>This will permanently delete this technician's account.</AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={() => handleDelete(tech)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Remove</AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </div>
+                <div className="mt-4 grid grid-cols-2 gap-3 pt-4 border-t">
+                  <div>
+                    <p className="text-xs text-muted-foreground">Branch</p>
+                    <p className="text-sm font-medium text-card-foreground capitalize">{tech.branch || "main"}</p>
                   </div>
                   <div>
-                    <h3 className="font-semibold text-card-foreground">{tech.name}</h3>
-                    <p className="text-xs text-muted-foreground">{tech.specialty}</p>
+                    <p className="text-xs text-muted-foreground">Joined</p>
+                    <p className="text-sm font-medium text-card-foreground">{new Date(tech.created_at).toLocaleDateString()}</p>
                   </div>
                 </div>
-                <Button variant="ghost" size="icon" className="h-8 w-8">
-                  <MoreVertical className="h-4 w-4" />
-                </Button>
               </div>
-
-              <div className="mt-4 flex items-center gap-2">
-                <Star className="h-4 w-4 text-accent fill-accent" />
-                <span className="text-sm font-medium text-card-foreground">{tech.rating}</span>
-                <span className={`ml-auto inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
-                  tech.status === "active" ? "bg-sage-light text-sage" : "bg-champagne text-accent"
-                }`}>
-                  {tech.status}
-                </span>
-              </div>
-
-              <div className="mt-4 grid grid-cols-3 gap-3 pt-4 border-t">
-                <div className="text-center">
-                  <p className="text-lg font-display font-bold text-card-foreground">{tech.appointments}</p>
-                  <p className="text-[10px] text-muted-foreground">Services</p>
-                </div>
-                <div className="text-center">
-                  <p className="text-lg font-display font-bold text-card-foreground">{tech.commission}%</p>
-                  <p className="text-[10px] text-muted-foreground">Commission</p>
-                </div>
-                <div className="text-center">
-                  <p className="text-lg font-display font-bold text-primary">{tech.revenue}</p>
-                  <p className="text-[10px] text-muted-foreground">Revenue</p>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
     </AdminLayout>
   );

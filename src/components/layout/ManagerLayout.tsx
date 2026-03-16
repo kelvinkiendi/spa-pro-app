@@ -1,7 +1,7 @@
 import { ReactNode, useState } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import {
-  Calendar, Users, Clock, UserCheck, Scissors, LogOut, ChevronLeft, ChevronRight, Sparkles, ClipboardList,
+  Calendar, Users, Clock, UserCheck, Scissors, LogOut, ChevronLeft, ChevronRight, Sparkles, ClipboardList, Package,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { AdminHeader } from "./AdminHeader";
@@ -15,6 +15,7 @@ const navItems = [
   { title: "Attendance", icon: UserCheck, path: "/manager/attendance" },
   { title: "Walk-ins", icon: Users, path: "/manager/walkins" },
   { title: "Clients", icon: Scissors, path: "/manager/clients" },
+  { title: "Inventory", icon: Package, path: "/manager/inventory" },
 ];
 
 export function ManagerLayout({ children }: { children: ReactNode }) {
