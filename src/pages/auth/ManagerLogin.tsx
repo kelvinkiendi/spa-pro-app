@@ -7,6 +7,7 @@ const ManagerLogin = () => (
     expectedRole="branch_manager"
     redirectTo="/manager"
     accentColor="bg-accent"
+    showBranchSelect
   />
 );
 
