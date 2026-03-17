@@ -37,10 +37,7 @@ Deno.serve(async (req) => {
       });
       if (createErr) throw createErr;
 
-      // The trigger creates the profile, but update branch
       await supabaseAdmin.from("profiles").update({ branch, full_name }).eq("user_id", newUser.user!.id);
-
-      // Assign role
       await supabaseAdmin.from("user_roles").insert({ user_id: newUser.user!.id, role });
 
       return new Response(JSON.stringify({ user: newUser.user }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
@@ -49,10 +46,9 @@ Deno.serve(async (req) => {
     if (action === "list") {
       const { data: roles } = await supabaseAdmin.from("user_roles").select("user_id, role");
       const { data: profiles } = await supabaseAdmin.from("profiles").select("user_id, full_name, branch");
-      
-      // Get auth users
+
       const { data: { users } } = await supabaseAdmin.auth.admin.listUsers();
-      
+
       const combined = users.map((u: any) => {
         const r = roles?.find((r: any) => r.user_id === u.id);
         const p = profiles?.find((p: any) => p.user_id === u.id);
@@ -60,6 +56,20 @@ Deno.serve(async (req) => {
       });
 
       return new Response(JSON.stringify({ users: combined }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
+
+    if (action === "update_branch") {
+      const { user_id, branch } = params;
+      if (!user_id || !branch) throw new Error("User and branch are required");
+
+      const { error: updateErr } = await supabaseAdmin
+        .from("profiles")
+        .update({ branch })
+        .eq("user_id", user_id);
+
+      if (updateErr) throw updateErr;
+
+      return new Response(JSON.stringify({ success: true }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
     if (action === "delete") {

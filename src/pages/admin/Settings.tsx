@@ -31,30 +31,46 @@ const roleBadgeMap: Record<string, { label: string; variant: "default" | "second
 
 const AdminSettings = () => {
   const [users, setUsers] = useState<ManagedUser[]>([]);
+  const [branches, setBranches] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
+  const [savingUserId, setSavingUserId] = useState<string | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [form, setForm] = useState({ email: "", password: "", full_name: "", role: "nail_tech", branch: "main" });
+  const [form, setForm] = useState({ email: "", password: "", full_name: "", role: "nail_tech", branch: "" });
   const { toast } = useToast();
 
-  const fetchUsers = async () => {
+  const fetchUsersAndBranches = async () => {
     setLoading(true);
-    const { data: { session } } = await supabase.auth.getSession();
-    const res = await supabase.functions.invoke("manage-users", {
-      body: { action: "list" },
-    });
-    if (res.error) {
+
+    const [usersRes, branchesRes] = await Promise.all([
+      supabase.functions.invoke("manage-users", { body: { action: "list" } }),
+      supabase.from("branches").select("name").order("created_at", { ascending: true }),
+    ]);
+
+    if (usersRes.error) {
       toast({ title: "Error", description: "Failed to load users", variant: "destructive" });
     } else {
-      setUsers(res.data.users || []);
+      setUsers(usersRes.data.users || []);
     }
+
+    if (branchesRes.error) {
+      toast({ title: "Error", description: "Failed to load branches", variant: "destructive" });
+      setBranches([]);
+    } else {
+      const names = (branchesRes.data || []).map((branch) => branch.name);
+      setBranches(names);
+      setForm((current) => ({ ...current, branch: current.branch || names[0] || "" }));
+    }
+
     setLoading(false);
   };
 
-  useEffect(() => { fetchUsers(); }, []);
+  useEffect(() => {
+    fetchUsersAndBranches();
+  }, []);
 
   const handleCreate = async () => {
-    if (!form.email || !form.password || !form.full_name) {
+    if (!form.email || !form.password || !form.full_name || !form.branch) {
       toast({ title: "Missing fields", description: "Please fill all required fields", variant: "destructive" });
       return;
     }
@@ -66,11 +82,26 @@ const AdminSettings = () => {
       toast({ title: "Error", description: res.data?.error || "Failed to create user", variant: "destructive" });
     } else {
       toast({ title: "User created", description: `${form.full_name} has been added as ${roleBadgeMap[form.role]?.label}` });
-      setForm({ email: "", password: "", full_name: "", role: "nail_tech", branch: "main" });
+      setForm({ email: "", password: "", full_name: "", role: "nail_tech", branch: branches[0] || "" });
       setDialogOpen(false);
-      fetchUsers();
+      fetchUsersAndBranches();
     }
     setCreating(false);
+  };
+
+  const handleBranchChange = async (userId: string, fullName: string, branch: string) => {
+    setSavingUserId(userId);
+    const res = await supabase.functions.invoke("manage-users", {
+      body: { action: "update_branch", user_id: userId, branch },
+    });
+
+    if (res.error || res.data?.error) {
+      toast({ title: "Error", description: res.data?.error || "Failed to update branch", variant: "destructive" });
+    } else {
+      setUsers((current) => current.map((user) => (user.id === userId ? { ...user, branch } : user)));
+      toast({ title: "Branch updated", description: `${fullName} is now assigned to ${branch}` });
+    }
+    setSavingUserId(null);
   };
 
   const handleDelete = async (userId: string, name: string) => {
@@ -82,24 +113,21 @@ const AdminSettings = () => {
       toast({ title: "Error", description: res.data?.error || "Failed to delete user", variant: "destructive" });
     } else {
       toast({ title: "User deleted" });
-      fetchUsers();
+      fetchUsersAndBranches();
     }
   };
 
   const counts = {
     total: users.length,
-    admins: users.filter(u => u.role === "admin").length,
-    managers: users.filter(u => u.role === "branch_manager").length,
-    techs: users.filter(u => u.role === "nail_tech").length,
+    admins: users.filter((u) => u.role === "admin").length,
+    managers: users.filter((u) => u.role === "branch_manager").length,
+    techs: users.filter((u) => u.role === "nail_tech").length,
   };
 
   return (
     <AdminLayout>
       <div className="space-y-6">
-        {/* Branding */}
         <BrandingSettings />
-
-        {/* Branches */}
         <BranchManagement />
 
         <div className="flex items-center justify-between">
@@ -121,20 +149,20 @@ const AdminSettings = () => {
               <div className="space-y-4 pt-2">
                 <div className="space-y-2">
                   <Label>Full Name</Label>
-                  <Input value={form.full_name} onChange={e => setForm(f => ({ ...f, full_name: e.target.value }))} placeholder="Jane Doe" />
+                  <Input value={form.full_name} onChange={(e) => setForm((f) => ({ ...f, full_name: e.target.value }))} placeholder="Jane Doe" />
                 </div>
                 <div className="space-y-2">
                   <Label>Email</Label>
-                  <Input type="email" value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} placeholder="jane@glowspa.com" />
+                  <Input type="email" value={form.email} onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))} placeholder="jane@glowspa.com" />
                 </div>
                 <div className="space-y-2">
                   <Label>Password</Label>
-                  <Input type="password" value={form.password} onChange={e => setForm(f => ({ ...f, password: e.target.value }))} placeholder="Min 6 characters" />
+                  <Input type="password" value={form.password} onChange={(e) => setForm((f) => ({ ...f, password: e.target.value }))} placeholder="Min 6 characters" />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label>Role</Label>
-                    <Select value={form.role} onValueChange={v => setForm(f => ({ ...f, role: v }))}>
+                    <Select value={form.role} onValueChange={(v) => setForm((f) => ({ ...f, role: v }))}>
                       <SelectTrigger><SelectValue /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="admin">Admin</SelectItem>
@@ -145,10 +173,17 @@ const AdminSettings = () => {
                   </div>
                   <div className="space-y-2">
                     <Label>Branch</Label>
-                    <Input value={form.branch} onChange={e => setForm(f => ({ ...f, branch: e.target.value }))} placeholder="main" />
+                    <Select value={form.branch} onValueChange={(v) => setForm((f) => ({ ...f, branch: v }))} disabled={branches.length === 0}>
+                      <SelectTrigger><SelectValue placeholder="Select branch" /></SelectTrigger>
+                      <SelectContent>
+                        {branches.map((branch) => (
+                          <SelectItem key={branch} value={branch}>{branch}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
                 </div>
-                <Button onClick={handleCreate} disabled={creating} className="w-full">
+                <Button onClick={handleCreate} disabled={creating || branches.length === 0} className="w-full">
                   {creating ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <UserPlus className="h-4 w-4 mr-2" />}
                   Create User
                 </Button>
@@ -157,7 +192,6 @@ const AdminSettings = () => {
           </Dialog>
         </div>
 
-        {/* Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <Card><CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-muted-foreground">Total Users</CardTitle></CardHeader><CardContent><div className="flex items-center gap-2"><Users className="h-5 w-5 text-primary" /><span className="text-2xl font-bold">{counts.total}</span></div></CardContent></Card>
           <Card><CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-muted-foreground">Admins</CardTitle></CardHeader><CardContent><div className="flex items-center gap-2"><ShieldCheck className="h-5 w-5 text-primary" /><span className="text-2xl font-bold">{counts.admins}</span></div></CardContent></Card>
@@ -165,7 +199,6 @@ const AdminSettings = () => {
           <Card><CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-muted-foreground">Nail Techs</CardTitle></CardHeader><CardContent><div className="flex items-center gap-2"><Scissors className="h-5 w-5 text-primary" /><span className="text-2xl font-bold">{counts.techs}</span></div></CardContent></Card>
         </div>
 
-        {/* Users table */}
         <Card>
           <CardContent className="pt-6">
             {loading ? (
@@ -185,26 +218,45 @@ const AdminSettings = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {users.map(u => (
-                    <TableRow key={u.id}>
-                      <TableCell className="font-medium">{u.full_name || "—"}</TableCell>
-                      <TableCell>{u.email}</TableCell>
-                      <TableCell>
-                        <Badge variant={roleBadgeMap[u.role]?.variant || "outline"}>
-                          {roleBadgeMap[u.role]?.label || u.role}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>{u.branch || "—"}</TableCell>
-                      <TableCell className="text-muted-foreground text-sm">
-                        {new Date(u.created_at).toLocaleDateString()}
-                      </TableCell>
-                      <TableCell>
-                        <Button variant="ghost" size="icon" onClick={() => handleDelete(u.id, u.full_name)} className="text-destructive hover:text-destructive">
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                  {users.map((u) => {
+                    const userBranchOptions = branches.includes(u.branch) || !u.branch ? branches : [u.branch, ...branches];
+
+                    return (
+                      <TableRow key={u.id}>
+                        <TableCell className="font-medium">{u.full_name || "—"}</TableCell>
+                        <TableCell>{u.email}</TableCell>
+                        <TableCell>
+                          <Badge variant={roleBadgeMap[u.role]?.variant || "outline"}>
+                            {roleBadgeMap[u.role]?.label || u.role}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          <Select
+                            value={u.branch || ""}
+                            onValueChange={(branch) => handleBranchChange(u.id, u.full_name, branch)}
+                            disabled={savingUserId === u.id || userBranchOptions.length === 0}
+                          >
+                            <SelectTrigger className="w-[180px]">
+                              <SelectValue placeholder="Select branch" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {userBranchOptions.map((branch) => (
+                                <SelectItem key={branch} value={branch}>{branch}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </TableCell>
+                        <TableCell className="text-muted-foreground text-sm">
+                          {new Date(u.created_at).toLocaleDateString()}
+                        </TableCell>
+                        <TableCell>
+                          <Button variant="ghost" size="icon" onClick={() => handleDelete(u.id, u.full_name)} className="text-destructive hover:text-destructive">
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
                   {users.length === 0 && (
                     <TableRow><TableCell colSpan={6} className="text-center text-muted-foreground py-8">No users found</TableCell></TableRow>
                   )}
