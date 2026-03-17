@@ -1,11 +1,13 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useAppSettings } from "@/hooks/useAppSettings";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Sparkles, LogIn, Loader2, ArrowLeft } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 interface LoginPageProps {
   title: string;
@@ -13,20 +15,53 @@ interface LoginPageProps {
   expectedRole: "admin" | "branch_manager" | "nail_tech";
   redirectTo: string;
   accentColor: string;
+  showBranchSelect?: boolean;
 }
 
-export function LoginPage({ title, subtitle, expectedRole, redirectTo, accentColor }: LoginPageProps) {
+interface BranchOption {
+  id: string;
+  name: string;
+}
+
+export function LoginPage({ title, subtitle, expectedRole, redirectTo, accentColor, showBranchSelect = false }: LoginPageProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [selectedBranch, setSelectedBranch] = useState("");
+  const [branches, setBranches] = useState<BranchOption[]>([]);
+  const [branchesLoading, setBranchesLoading] = useState(showBranchSelect);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const { signIn } = useAuth();
   const { settings } = useAppSettings();
   const navigate = useNavigate();
 
+  useEffect(() => {
+    if (!showBranchSelect) return;
+
+    const fetchBranches = async () => {
+      const { data, error } = await supabase
+        .from("branches")
+        .select("id, name")
+        .order("created_at", { ascending: true });
+
+      if (!error) {
+        setBranches(data || []);
+      }
+      setBranchesLoading(false);
+    };
+
+    fetchBranches();
+  }, [showBranchSelect]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+
+    if (showBranchSelect && !selectedBranch) {
+      setError("Please select a branch.");
+      return;
+    }
+
     setSubmitting(true);
 
     const { error: signInError } = await signIn(email, password);
@@ -36,7 +71,27 @@ export function LoginPage({ title, subtitle, expectedRole, redirectTo, accentCol
       return;
     }
 
-    // Role will be checked by the target page's route guard
+    if (showBranchSelect && expectedRole === "branch_manager") {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (user) {
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("branch")
+          .eq("user_id", user.id)
+          .single();
+
+        if (profile?.branch !== selectedBranch) {
+          await supabase.auth.signOut();
+          setError("This manager account is not assigned to the selected branch.");
+          setSubmitting(false);
+          return;
+        }
+      }
+    }
+
     navigate(redirectTo);
     setSubmitting(false);
   };
@@ -85,11 +140,29 @@ export function LoginPage({ title, subtitle, expectedRole, redirectTo, accentCol
               />
             </div>
 
+            {showBranchSelect && (
+              <div className="space-y-2">
+                <Label>Branch</Label>
+                <Select value={selectedBranch} onValueChange={setSelectedBranch} disabled={branchesLoading || branches.length === 0}>
+                  <SelectTrigger>
+                    <SelectValue placeholder={branchesLoading ? "Loading branches..." : "Select branch"} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {branches.map((branch) => (
+                      <SelectItem key={branch.id} value={branch.name}>
+                        {branch.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+
             {error && (
               <p className="text-sm text-destructive bg-destructive/10 rounded-lg p-3">{error}</p>
             )}
 
-            <Button type="submit" className="w-full gradient-primary text-primary-foreground gap-2" disabled={submitting}>
+            <Button type="submit" className="w-full gradient-primary text-primary-foreground gap-2" disabled={submitting || (showBranchSelect && branchesLoading)}>
               {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <LogIn className="h-4 w-4" />}
               Sign In
             </Button>
