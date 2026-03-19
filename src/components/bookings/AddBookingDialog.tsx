@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { Plus } from "lucide-react";
 import type { NewBooking } from "@/hooks/useBookings";
+import { useBranches } from "@/hooks/useBranches";
 
 const services = [
   "Gel Manicure", "Classic Manicure", "Pedicure Deluxe", "Gel Pedicure",
@@ -18,15 +19,18 @@ interface AddBookingDialogProps {
   onAdd: (booking: NewBooking) => void;
   isLoading?: boolean;
   defaultTech?: string;
+  defaultBranch?: string;
 }
 
-export function AddBookingDialog({ onAdd, isLoading, defaultTech }: AddBookingDialogProps) {
+export function AddBookingDialog({ onAdd, isLoading, defaultTech, defaultBranch }: AddBookingDialogProps) {
   const [open, setOpen] = useState(false);
+  const { branchNames } = useBranches();
   const [form, setForm] = useState<NewBooking>({
     client_name: "",
     client_phone: "",
     service: "",
     tech_name: defaultTech ?? "",
+    branch: defaultBranch ?? "",
     booking_date: "",
     booking_time: "",
     duration_minutes: 60,
@@ -37,7 +41,7 @@ export function AddBookingDialog({ onAdd, isLoading, defaultTech }: AddBookingDi
     e.preventDefault();
     onAdd(form);
     setOpen(false);
-    setForm({ client_name: "", client_phone: "", service: "", tech_name: defaultTech ?? "", booking_date: "", booking_time: "", duration_minutes: 60, notes: "" });
+    setForm({ client_name: "", client_phone: "", service: "", tech_name: defaultTech ?? "", branch: defaultBranch ?? "", booking_date: "", booking_time: "", duration_minutes: 60, notes: "" });
   };
 
   const update = (key: keyof NewBooking, value: string | number) => setForm((p) => ({ ...p, [key]: value }));
@@ -79,6 +83,18 @@ export function AddBookingDialog({ onAdd, isLoading, defaultTech }: AddBookingDi
             <div className="space-y-2">
               <Label>Technician *</Label>
               <Input required value={form.tech_name} onChange={(e) => update("tech_name", e.target.value)} placeholder="Tech name" />
+            </div>
+          )}
+
+          {!defaultBranch && (
+            <div className="space-y-2">
+              <Label>Branch *</Label>
+              <Select required value={form.branch || ""} onValueChange={(v) => update("branch", v)}>
+                <SelectTrigger><SelectValue placeholder="Select branch" /></SelectTrigger>
+                <SelectContent>
+                  {branchNames.map((name) => <SelectItem key={name} value={name}>{name}</SelectItem>)}
+                </SelectContent>
+              </Select>
             </div>
           )}
 
