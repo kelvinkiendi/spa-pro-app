@@ -48,6 +48,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         } else {
           setRole(null);
           setFullName(null);
+          setBranch(null);
         }
       }
     );
