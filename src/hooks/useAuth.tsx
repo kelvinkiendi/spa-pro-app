@@ -8,6 +8,7 @@ interface AuthContextType {
   user: User | null;
   role: AppRole | null;
   fullName: string | null;
+  branch: string | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<{ error: string | null }>;
   signOut: () => Promise<void>;
