@@ -27,10 +27,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const fetchRoleAndProfile = useCallback(async (userId: string) => {
     const [{ data: roleData }, { data: profileData }] = await Promise.all([
       supabase.rpc("get_user_role", { _user_id: userId }),
-      supabase.from("profiles").select("full_name").eq("user_id", userId).single(),
+      supabase.from("profiles").select("full_name, branch").eq("user_id", userId).single(),
     ]);
     setRole(roleData as AppRole | null);
     setFullName(profileData?.full_name ?? null);
+    setBranch(profileData?.branch ?? null);
   }, []);
 
   useEffect(() => {
