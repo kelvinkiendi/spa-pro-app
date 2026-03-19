@@ -22,6 +22,7 @@ interface WalkIn {
 }
 
 const WalkIns = () => {
+  const { branch } = useAuth();
   const [walkIns, setWalkIns] = useState<WalkIn[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -29,10 +30,9 @@ const WalkIns = () => {
   const [form, setForm] = useState({ client_name: "", client_phone: "", service: "", tech_name: "", notes: "" });
 
   const fetchWalkIns = async () => {
-    const { data, error } = await supabase
-      .from("walk_ins")
-      .select("*")
-      .order("arrived_at", { ascending: false });
+    let q = supabase.from("walk_ins").select("*").order("arrived_at", { ascending: false });
+    if (branch) q = q.eq("branch", branch);
+    const { data, error } = await q;
     if (!error) setWalkIns(data || []);
     setLoading(false);
   };
