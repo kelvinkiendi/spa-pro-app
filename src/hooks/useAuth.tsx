@@ -84,6 +84,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
     setRole(null);
     setFullName(null);
+    setBranch(null);
   }, []);
 
   return (
