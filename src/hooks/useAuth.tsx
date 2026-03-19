@@ -20,6 +20,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [role, setRole] = useState<AppRole | null>(null);
   const [fullName, setFullName] = useState<string | null>(null);
+  const [branch, setBranch] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const initializedRef = useRef(false);
 
