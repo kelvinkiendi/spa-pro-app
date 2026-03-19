@@ -51,6 +51,7 @@ const WalkIns = () => {
       service: form.service,
       tech_name: form.tech_name,
       notes: form.notes || null,
+      branch: branch || "main",
     });
     if (error) {
       toast({ title: "Error", description: error.message, variant: "destructive" });
