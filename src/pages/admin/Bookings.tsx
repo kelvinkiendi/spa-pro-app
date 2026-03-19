@@ -2,10 +2,12 @@ import { AdminLayout } from "@/components/layout/AdminLayout";
 import { BookingsTable } from "@/components/bookings/BookingsTable";
 import { AddBookingDialog } from "@/components/bookings/AddBookingDialog";
 import { useBookings } from "@/hooks/useBookings";
+import { useBranchFilter } from "@/contexts/BranchFilterContext";
 import { Loader2 } from "lucide-react";
 
 const Bookings = () => {
-  const { bookings, isLoading, addBooking } = useBookings();
+  const { selectedBranch } = useBranchFilter();
+  const { bookings, isLoading, addBooking } = useBookings(undefined, selectedBranch);
 
   return (
     <AdminLayout>

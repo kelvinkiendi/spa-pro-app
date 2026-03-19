@@ -32,15 +32,16 @@ export interface NewBooking {
   notes?: string;
 }
 
-export function useBookings(filterTech?: string) {
+export function useBookings(filterTech?: string, filterBranch?: string) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
   const query = useQuery({
-    queryKey: ["bookings", filterTech],
+    queryKey: ["bookings", filterTech, filterBranch],
     queryFn: async () => {
       let q = supabase.from("bookings").select("*").order("booking_date", { ascending: true }).order("booking_time", { ascending: true });
       if (filterTech) q = q.eq("tech_name", filterTech);
+      if (filterBranch && filterBranch !== "all") q = q.eq("branch", filterBranch);
       const { data, error } = await q;
       if (error) throw error;
       return data as Booking[];

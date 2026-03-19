@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { AdminLayout } from "@/components/layout/AdminLayout";
 import { Button } from "@/components/ui/button";
-import { Plus, Search, Star, MoreVertical, Trash2, Loader2 } from "lucide-react";
+import { Plus, Search, Trash2, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
@@ -9,6 +9,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { useBranches } from "@/hooks/useBranches";
+import { useBranchFilter } from "@/contexts/BranchFilterContext";
 
 interface TechUser {
   id: string;
@@ -24,7 +26,15 @@ const Technicians = () => {
   const [search, setSearch] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
   const [creating, setCreating] = useState(false);
-  const [form, setForm] = useState({ email: "", password: "", full_name: "", branch: "main" });
+  const { branches, branchNames } = useBranches();
+  const { selectedBranch } = useBranchFilter();
+  const [form, setForm] = useState({ email: "", password: "", full_name: "", branch: "" });
+
+  useEffect(() => {
+    if (branchNames.length > 0 && !form.branch) {
+      setForm((f) => ({ ...f, branch: branchNames[0] }));
+    }
+  }, [branchNames]);
 
   const fetchTechs = async () => {
     try {
@@ -46,7 +56,7 @@ const Technicians = () => {
   useEffect(() => { fetchTechs(); }, []);
 
   const handleCreate = async () => {
-    if (!form.email || !form.password || !form.full_name) {
+    if (!form.email || !form.password || !form.full_name || !form.branch) {
       toast({ title: "Missing fields", description: "Please fill all required fields", variant: "destructive" });
       return;
     }
@@ -57,7 +67,7 @@ const Technicians = () => {
       });
       if (error) throw error;
       toast({ title: "Technician added", description: `${form.full_name} has been added` });
-      setForm({ email: "", password: "", full_name: "", branch: "main" });
+      setForm({ email: "", password: "", full_name: "", branch: branchNames[0] || "" });
       setDialogOpen(false);
       fetchTechs();
     } catch (err: any) {
@@ -80,10 +90,12 @@ const Technicians = () => {
     }
   };
 
-  const filtered = techs.filter(t =>
-    t.full_name?.toLowerCase().includes(search.toLowerCase()) ||
-    t.email?.toLowerCase().includes(search.toLowerCase())
-  );
+  const filtered = techs
+    .filter(t =>
+      t.full_name?.toLowerCase().includes(search.toLowerCase()) ||
+      t.email?.toLowerCase().includes(search.toLowerCase())
+    )
+    .filter(t => !selectedBranch || selectedBranch === "all" || t.branch === selectedBranch);
 
   return (
     <AdminLayout>
@@ -117,13 +129,13 @@ const Technicians = () => {
                   <Input type="password" value={form.password} onChange={e => setForm(f => ({ ...f, password: e.target.value }))} placeholder="Minimum 6 characters" />
                 </div>
                 <div className="space-y-2">
-                  <Label>Branch</Label>
-                  <Select value={form.branch} onValueChange={v => setForm(f => ({ ...f, branch: v }))}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
+                  <Label>Branch *</Label>
+                  <Select value={form.branch} onValueChange={v => setForm(f => ({ ...f, branch: v }))} disabled={branchNames.length === 0}>
+                    <SelectTrigger><SelectValue placeholder="Select branch" /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="main">Main</SelectItem>
-                      <SelectItem value="branch-1">Branch 1</SelectItem>
-                      <SelectItem value="branch-2">Branch 2</SelectItem>
+                      {branchNames.map((name) => (
+                        <SelectItem key={name} value={name}>{name}</SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
@@ -179,7 +191,7 @@ const Technicians = () => {
                 <div className="mt-4 grid grid-cols-2 gap-3 pt-4 border-t">
                   <div>
                     <p className="text-xs text-muted-foreground">Branch</p>
-                    <p className="text-sm font-medium text-card-foreground capitalize">{tech.branch || "main"}</p>
+                    <p className="text-sm font-medium text-card-foreground capitalize">{tech.branch || "—"}</p>
                   </div>
                   <div>
                     <p className="text-xs text-muted-foreground">Joined</p>

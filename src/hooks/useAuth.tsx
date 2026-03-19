@@ -8,6 +8,7 @@ interface AuthContextType {
   user: User | null;
   role: AppRole | null;
   fullName: string | null;
+  branch: string | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<{ error: string | null }>;
   signOut: () => Promise<void>;
@@ -19,16 +20,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [role, setRole] = useState<AppRole | null>(null);
   const [fullName, setFullName] = useState<string | null>(null);
+  const [branch, setBranch] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const initializedRef = useRef(false);
 
   const fetchRoleAndProfile = useCallback(async (userId: string) => {
     const [{ data: roleData }, { data: profileData }] = await Promise.all([
       supabase.rpc("get_user_role", { _user_id: userId }),
-      supabase.from("profiles").select("full_name").eq("user_id", userId).single(),
+      supabase.from("profiles").select("full_name, branch").eq("user_id", userId).single(),
     ]);
     setRole(roleData as AppRole | null);
     setFullName(profileData?.full_name ?? null);
+    setBranch(profileData?.branch ?? null);
   }, []);
 
   useEffect(() => {
@@ -45,6 +48,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         } else {
           setRole(null);
           setFullName(null);
+          setBranch(null);
         }
       }
     );
@@ -80,10 +84,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
     setRole(null);
     setFullName(null);
+    setBranch(null);
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, role, fullName, loading, signIn, signOut }}>
+    <AuthContext.Provider value={{ user, role, fullName, branch, loading, signIn, signOut }}>
       {children}
     </AuthContext.Provider>
   );
