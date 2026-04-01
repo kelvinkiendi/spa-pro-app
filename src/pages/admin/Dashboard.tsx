@@ -4,7 +4,6 @@ import {
   DollarSign,
   Calendar,
   Users,
-  TrendingUp,
   Clock,
   Scissors,
 } from "lucide-react";
@@ -19,6 +18,10 @@ import {
   BarChart,
   Bar,
 } from "recharts";
+import { useBranchFilter } from "@/contexts/BranchFilterContext";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { format } from "date-fns";
 
 const revenueData = [
   { name: "Mon", revenue: 2400 },
@@ -38,67 +41,60 @@ const serviceData = [
   { name: "Dip Powder", count: 22 },
 ];
 
-const upcomingBookings = [
-  { client: "Emma Wilson", service: "Gel Manicure", tech: "Lisa", time: "10:00 AM", status: "confirmed" },
-  { client: "Sarah Chen", service: "Pedicure Deluxe", tech: "Maria", time: "10:30 AM", status: "confirmed" },
-  { client: "Ava Rodriguez", service: "Acrylic Full Set", tech: "Tina", time: "11:00 AM", status: "pending" },
-  { client: "Mia Johnson", service: "Nail Art Design", tech: "Lisa", time: "11:30 AM", status: "confirmed" },
-  { client: "Olivia Brown", service: "Dip Powder", tech: "Jade", time: "12:00 PM", status: "confirmed" },
-];
-
 const Dashboard = () => {
+  const { selectedBranch } = useBranchFilter();
+  const today = format(new Date(), "yyyy-MM-dd");
+
+  const { data: todayBookings = [] } = useQuery({
+    queryKey: ["dashboard-bookings", selectedBranch, today],
+    queryFn: async () => {
+      let q = supabase.from("bookings").select("*").eq("booking_date", today).order("booking_time");
+      if (selectedBranch && selectedBranch !== "all") {
+        q = q.eq("branch", selectedBranch);
+      }
+      const { data, error } = await q;
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const { data: clientCount = 0 } = useQuery({
+    queryKey: ["dashboard-clients", selectedBranch],
+    queryFn: async () => {
+      let q = supabase.from("clients").select("id", { count: "exact", head: true });
+      if (selectedBranch && selectedBranch !== "all") {
+        q = q.eq("branch", selectedBranch);
+      }
+      const { count, error } = await q;
+      if (error) throw error;
+      return count ?? 0;
+    },
+  });
+
+  const branchLabel = selectedBranch && selectedBranch !== "all" ? selectedBranch : "all branches";
+
   return (
     <AdminLayout>
       <div className="space-y-6">
-        {/* Header */}
         <div>
           <h1 className="text-2xl font-display font-bold text-foreground">
             Good Morning, Admin ✨
           </h1>
           <p className="text-muted-foreground mt-1">
-            Here's what's happening at your spa today.
+            Here's what's happening at {branchLabel} today.
           </p>
         </div>
 
-        {/* Stats Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <StatCard
-            title="Today's Revenue"
-            value="$2,840"
-            change="+12.5% from yesterday"
-            changeType="positive"
-            icon={DollarSign}
-          />
-          <StatCard
-            title="Appointments"
-            value="24"
-            change="6 remaining today"
-            changeType="neutral"
-            icon={Calendar}
-          />
-          <StatCard
-            title="Active Clients"
-            value="1,284"
-            change="+48 this month"
-            changeType="positive"
-            icon={Users}
-          />
-          <StatCard
-            title="Avg. Service Time"
-            value="52 min"
-            change="-3 min vs last week"
-            changeType="positive"
-            icon={Clock}
-          />
+          <StatCard title="Today's Bookings" value={String(todayBookings.length)} icon={Calendar} />
+          <StatCard title="Active Clients" value={String(clientCount)} icon={Users} />
+          <StatCard title="Confirmed" value={String(todayBookings.filter(b => b.status === "confirmed").length)} icon={DollarSign} />
+          <StatCard title="Pending" value={String(todayBookings.filter(b => b.status === "pending").length)} icon={Clock} />
         </div>
 
-        {/* Charts Row */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Revenue Chart */}
           <div className="lg:col-span-2 rounded-xl bg-card p-6 shadow-card border">
-            <h3 className="font-display font-semibold text-lg text-card-foreground mb-4">
-              Weekly Revenue
-            </h3>
+            <h3 className="font-display font-semibold text-lg text-card-foreground mb-4">Weekly Revenue</h3>
             <ResponsiveContainer width="100%" height={280}>
               <AreaChart data={revenueData}>
                 <defs>
@@ -111,22 +107,13 @@ const Dashboard = () => {
                 <XAxis dataKey="name" stroke="hsl(20, 10%, 50%)" fontSize={12} />
                 <YAxis stroke="hsl(20, 10%, 50%)" fontSize={12} />
                 <Tooltip />
-                <Area
-                  type="monotone"
-                  dataKey="revenue"
-                  stroke="hsl(350, 55%, 55%)"
-                  strokeWidth={2}
-                  fill="url(#revenueGrad)"
-                />
+                <Area type="monotone" dataKey="revenue" stroke="hsl(350, 55%, 55%)" strokeWidth={2} fill="url(#revenueGrad)" />
               </AreaChart>
             </ResponsiveContainer>
           </div>
 
-          {/* Top Services */}
           <div className="rounded-xl bg-card p-6 shadow-card border">
-            <h3 className="font-display font-semibold text-lg text-card-foreground mb-4">
-              Popular Services
-            </h3>
+            <h3 className="font-display font-semibold text-lg text-card-foreground mb-4">Popular Services</h3>
             <ResponsiveContainer width="100%" height={280}>
               <BarChart data={serviceData} layout="vertical">
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(30, 20%, 90%)" />
@@ -139,15 +126,10 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Upcoming Bookings */}
         <div className="rounded-xl bg-card p-6 shadow-card border">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="font-display font-semibold text-lg text-card-foreground">
-              Today's Appointments
-            </h3>
-            <a href="/admin/bookings" className="text-sm text-primary font-medium hover:underline">
-              View All →
-            </a>
+            <h3 className="font-display font-semibold text-lg text-card-foreground">Today's Appointments</h3>
+            <a href="/admin/bookings" className="text-sm text-primary font-medium hover:underline">View All →</a>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
@@ -161,30 +143,32 @@ const Dashboard = () => {
                 </tr>
               </thead>
               <tbody>
-                {upcomingBookings.map((booking, i) => (
-                  <tr key={i} className="border-b last:border-0 hover:bg-muted/50 transition-colors">
-                    <td className="py-3 px-4 font-medium text-card-foreground">{booking.client}</td>
-                    <td className="py-3 px-4 text-muted-foreground">{booking.service}</td>
-                    <td className="py-3 px-4">
-                      <span className="flex items-center gap-2">
-                        <Scissors className="h-3.5 w-3.5 text-primary" />
-                        {booking.tech}
-                      </span>
-                    </td>
-                    <td className="py-3 px-4 text-muted-foreground">{booking.time}</td>
-                    <td className="py-3 px-4">
-                      <span
-                        className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                          booking.status === "confirmed"
-                            ? "bg-sage-light text-sage"
-                            : "bg-champagne text-accent"
-                        }`}
-                      >
-                        {booking.status}
-                      </span>
-                    </td>
+                {todayBookings.length === 0 ? (
+                  <tr>
+                    <td colSpan={5} className="py-8 text-center text-muted-foreground">No appointments today.</td>
                   </tr>
-                ))}
+                ) : (
+                  todayBookings.map((booking) => (
+                    <tr key={booking.id} className="border-b last:border-0 hover:bg-muted/50 transition-colors">
+                      <td className="py-3 px-4 font-medium text-card-foreground">{booking.client_name}</td>
+                      <td className="py-3 px-4 text-muted-foreground">{booking.service}</td>
+                      <td className="py-3 px-4">
+                        <span className="flex items-center gap-2">
+                          <Scissors className="h-3.5 w-3.5 text-primary" />
+                          {booking.tech_name}
+                        </span>
+                      </td>
+                      <td className="py-3 px-4 text-muted-foreground">{booking.booking_time}</td>
+                      <td className="py-3 px-4">
+                        <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                          booking.status === "confirmed" ? "bg-sage-light text-sage" : "bg-champagne text-accent"
+                        }`}>
+                          {booking.status}
+                        </span>
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>
