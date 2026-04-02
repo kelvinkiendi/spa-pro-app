@@ -15,6 +15,7 @@ export function BrandingSettings() {
   const { settings, updateSettings } = useAppSettings();
   const [appName, setAppName] = useState(settings.app_name);
   const [logoUrl, setLogoUrl] = useState(settings.logo_url || "");
+  const [currency, setCurrency] = useState(settings.currency || "KES");
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
