@@ -8,12 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Plus } from "lucide-react";
 import type { NewBooking } from "@/hooks/useBookings";
 import { useBranches } from "@/hooks/useBranches";
-
-const services = [
-  "Gel Manicure", "Classic Manicure", "Pedicure Deluxe", "Gel Pedicure",
-  "Acrylic Full Set", "Acrylic Fill", "Dip Powder", "Nail Art",
-  "Full Spa Package", "Nail Repair",
-];
+import { useServices } from "@/hooks/useServices";
 
 interface AddBookingDialogProps {
   onAdd: (booking: NewBooking) => void;
