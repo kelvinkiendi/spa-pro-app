@@ -8,7 +8,6 @@ import {
   Clock,
   ChevronRight,
   ChevronLeft,
-  Star,
   Scissors,
   Calendar,
   Check,
@@ -21,17 +20,6 @@ import { useAppSettings } from "@/hooks/useAppSettings";
 import { format } from "date-fns";
 import { toast } from "@/hooks/use-toast";
 import bookingBg from "@/assets/booking-background.jpg";
-
-const services = [
-  { id: "classic-mani", name: "Classic Manicure", duration: "30 min", durationMin: 30, price: 35, category: "Manicure" },
-  { id: "gel-mani", name: "Gel Manicure", duration: "45 min", durationMin: 45, price: 55, category: "Manicure" },
-  { id: "acrylic-full", name: "Acrylic Full Set", duration: "90 min", durationMin: 90, price: 120, category: "Extensions" },
-  { id: "classic-pedi", name: "Classic Pedicure", duration: "45 min", durationMin: 45, price: 45, category: "Pedicure" },
-  { id: "deluxe-pedi", name: "Deluxe Pedicure", duration: "60 min", durationMin: 60, price: 75, category: "Pedicure" },
-  { id: "nail-art", name: "Nail Art Design", duration: "30 min", durationMin: 30, price: 40, category: "Add-on" },
-  { id: "dip-powder", name: "Dip Powder Manicure", duration: "60 min", durationMin: 60, price: 65, category: "Manicure" },
-  { id: "full-spa", name: "Full Spa Package", duration: "120 min", durationMin: 120, price: 180, category: "Package" },
-];
 
 const timeSlots = [
   "09:00", "09:30", "10:00", "10:30", "11:00", "11:30",
@@ -49,6 +37,7 @@ const steps = ["Branch", "Services", "Technician", "Date & Time", "Details"];
 
 const ClientBooking = () => {
   const { settings } = useAppSettings();
+  const currency = settings.currency || "KES";
   const [step, setStep] = useState(0);
   const [selectedBranch, setSelectedBranch] = useState<string | null>(null);
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
@@ -59,7 +48,6 @@ const ClientBooking = () => {
   const [booked, setBooked] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
-  // Fetch branches from DB
   const { data: branches = [] } = useQuery({
     queryKey: ["public-branches"],
     queryFn: async () => {
@@ -69,7 +57,15 @@ const ClientBooking = () => {
     },
   });
 
-  // Fetch techs for selected branch
+  const { data: services = [] } = useQuery({
+    queryKey: ["public-services"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("services").select("*").eq("is_active", true).order("category").order("name");
+      if (error) throw error;
+      return data;
+    },
+  });
+
   const { data: technicians = [] } = useQuery({
     queryKey: ["public-techs", selectedBranch],
     enabled: !!selectedBranch,
@@ -79,7 +75,6 @@ const ClientBooking = () => {
         .select("user_id, full_name, branch")
         .eq("branch", selectedBranch!);
       if (error) throw error;
-      // Filter to nail_techs via user_roles
       const { data: roles } = await supabase
         .from("user_roles")
         .select("user_id, role")
@@ -92,17 +87,17 @@ const ClientBooking = () => {
   const total = useMemo(
     () => selectedServices.reduce((sum, id) => {
       const s = services.find((sv) => sv.id === id);
-      return sum + (s?.price || 0);
+      return sum + (s ? Number(s.price) : 0);
     }, 0),
-    [selectedServices]
+    [selectedServices, services]
   );
 
   const totalDuration = useMemo(
     () => selectedServices.reduce((sum, id) => {
       const s = services.find((sv) => sv.id === id);
-      return sum + (s?.durationMin || 0);
+      return sum + (s?.duration_minutes || 0);
     }, 0),
-    [selectedServices]
+    [selectedServices, services]
   );
 
   const canNext = () => {
@@ -173,17 +168,13 @@ const ClientBooking = () => {
     );
   }
 
-  const selectedBranchData = branches.find((b) => b.name === selectedBranch);
-
   return (
     <div className="min-h-screen relative">
-      {/* Background */}
       <div className="fixed inset-0 z-0">
         <img src={bookingBg} alt="" className="w-full h-full object-cover" width={1920} height={1080} />
         <div className="absolute inset-0 bg-background/75 backdrop-blur-[2px]" />
       </div>
 
-      {/* Header */}
       <header className="sticky top-0 z-30 border-b bg-card/80 backdrop-blur-md">
         <div className="max-w-4xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -201,7 +192,6 @@ const ClientBooking = () => {
       </header>
 
       <div className="max-w-4xl mx-auto px-6 py-8 relative z-10">
-        {/* Progress */}
         <div className="flex items-center justify-center gap-2 mb-10">
           {steps.map((s, i) => (
             <div key={i} className="flex items-center gap-2">
@@ -217,7 +207,6 @@ const ClientBooking = () => {
 
         <AnimatePresence mode="wait">
           <motion.div key={step} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.2 }}>
-            {/* Step 0: Branch */}
             {step === 0 && (
               <div>
                 <h2 className="text-2xl font-display font-bold text-foreground text-center mb-2">Choose Your Spa Location</h2>
@@ -240,37 +229,39 @@ const ClientBooking = () => {
               </div>
             )}
 
-            {/* Step 1: Services */}
             {step === 1 && (
               <div>
                 <h2 className="text-2xl font-display font-bold text-foreground text-center mb-2">Select Your Services</h2>
                 <p className="text-muted-foreground text-center mb-8">Choose one or more services</p>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  {services.map((s) => (
-                    <button
-                      key={s.id}
-                      onClick={() => setSelectedServices((prev) => prev.includes(s.id) ? prev.filter((id) => id !== s.id) : [...prev, s.id])}
-                      className={`rounded-xl border p-4 text-left transition-all flex items-center justify-between ${
-                        selectedServices.includes(s.id) ? "border-primary shadow-soft bg-blush" : "bg-card/90 backdrop-blur-md hover:shadow-card"
-                      }`}
-                    >
-                      <div>
-                        <h3 className="font-semibold text-card-foreground text-sm">{s.name}</h3>
-                        <p className="text-xs text-muted-foreground mt-0.5">{s.duration} · {s.category}</p>
-                      </div>
-                      <span className="font-display font-bold text-primary">${s.price}</span>
-                    </button>
-                  ))}
-                </div>
+                {services.length === 0 ? (
+                  <p className="text-center text-muted-foreground py-8">No services available yet.</p>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {services.map((s) => (
+                      <button
+                        key={s.id}
+                        onClick={() => setSelectedServices((prev) => prev.includes(s.id) ? prev.filter((id) => id !== s.id) : [...prev, s.id])}
+                        className={`rounded-xl border p-4 text-left transition-all flex items-center justify-between ${
+                          selectedServices.includes(s.id) ? "border-primary shadow-soft bg-blush" : "bg-card/90 backdrop-blur-md hover:shadow-card"
+                        }`}
+                      >
+                        <div>
+                          <h3 className="font-semibold text-card-foreground text-sm">{s.name}</h3>
+                          <p className="text-xs text-muted-foreground mt-0.5">{s.duration_minutes} min · {s.category}</p>
+                        </div>
+                        <span className="font-display font-bold text-primary">{currency} {Number(s.price).toLocaleString()}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
                 {selectedServices.length > 0 && (
                   <p className="text-center mt-4 text-sm font-medium text-foreground">
-                    Total: <span className="text-primary font-bold">${total}</span>
+                    Total: <span className="text-primary font-bold">{currency} {total.toLocaleString()}</span>
                   </p>
                 )}
               </div>
             )}
 
-            {/* Step 2: Technician */}
             {step === 2 && (
               <div>
                 <h2 className="text-2xl font-display font-bold text-foreground text-center mb-2">Pick Your Nail Tech</h2>
@@ -305,7 +296,6 @@ const ClientBooking = () => {
               </div>
             )}
 
-            {/* Step 3: Date & Time */}
             {step === 3 && (
               <div>
                 <h2 className="text-2xl font-display font-bold text-foreground text-center mb-2">Choose Date & Time</h2>
@@ -336,7 +326,6 @@ const ClientBooking = () => {
               </div>
             )}
 
-            {/* Step 4: Details */}
             {step === 4 && (
               <div className="max-w-md mx-auto">
                 <h2 className="text-2xl font-display font-bold text-foreground text-center mb-2">Your Details</h2>
@@ -348,7 +337,7 @@ const ClientBooking = () => {
                   </div>
                   <div>
                     <label className="text-sm font-medium text-foreground mb-1 block">Phone Number *</label>
-                    <Input value={clientInfo.phone} onChange={(e) => setClientInfo({ ...clientInfo, phone: e.target.value })} placeholder="(555) 123-4567" className="bg-card/90" />
+                    <Input value={clientInfo.phone} onChange={(e) => setClientInfo({ ...clientInfo, phone: e.target.value })} placeholder="+254 700 000000" className="bg-card/90" />
                   </div>
                   <div>
                     <label className="text-sm font-medium text-foreground mb-1 block">Email (optional)</label>
@@ -364,7 +353,7 @@ const ClientBooking = () => {
                     <p className="text-muted-foreground">
                       {selectedTech === "any" ? "Any Available" : technicians.find((t) => t.user_id === selectedTech)?.full_name} · {selectedTime && formatTime(selectedTime)} · {selectedDate}
                     </p>
-                    <p className="font-display font-bold text-primary text-lg">Total: ${total}</p>
+                    <p className="font-display font-bold text-primary text-lg">Total: {currency} {total.toLocaleString()}</p>
                   </div>
                 </div>
               </div>
@@ -372,7 +361,6 @@ const ClientBooking = () => {
           </motion.div>
         </AnimatePresence>
 
-        {/* Navigation */}
         <div className="flex items-center justify-between mt-10">
           <Button variant="outline" onClick={() => setStep((s) => s - 1)} disabled={step === 0} className="gap-1 bg-card/90">
             <ChevronLeft className="h-4 w-4" /> Back
