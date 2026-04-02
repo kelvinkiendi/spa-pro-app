@@ -5,6 +5,7 @@ interface AppSettings {
   id: string;
   app_name: string;
   logo_url: string | null;
+  currency: string;
 }
 
 interface AppSettingsContextType {
