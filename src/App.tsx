@@ -45,6 +45,7 @@ const TechBookings = lazy(() => import("./pages/tech/Bookings"));
 const TechSales = lazy(() => import("./pages/tech/Sales"));
 const TechCommission = lazy(() => import("./pages/tech/Commission"));
 const TechRatings = lazy(() => import("./pages/tech/Ratings"));
+const TechSchedule = lazy(() => import("./pages/tech/Schedule"));
 
 const queryClient = new QueryClient();
 
