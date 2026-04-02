@@ -38,7 +38,7 @@ const navItems = [
   { title: "Settings", icon: Settings, path: "/admin/settings" },
 ];
 
-export function AdminSidebar() {
+export function AdminSidebar({ onNavigate }: { onNavigate?: () => void } = {}) {
   const [collapsed, setCollapsed] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
