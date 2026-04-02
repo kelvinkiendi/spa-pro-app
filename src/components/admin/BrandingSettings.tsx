@@ -92,6 +92,16 @@ export function BrandingSettings() {
           </div>
         </div>
 
+        <div className="space-y-2">
+          <Label>Currency</Label>
+          <Select value={currency} onValueChange={setCurrency}>
+            <SelectTrigger className="w-[180px]"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              {currencies.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+            </SelectContent>
+          </Select>
+        </div>
+
         <Button onClick={handleSave} disabled={saving} className="gap-2">
           {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
           Save Branding
