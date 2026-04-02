@@ -7,6 +7,9 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Upload, Sparkles, Save } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
+const currencies = ["KES", "USD", "EUR", "GBP", "ZAR", "NGN", "TZS", "UGX", "GHS", "INR", "AED", "CAD", "AUD"];
 
 export function BrandingSettings() {
   const { settings, updateSettings } = useAppSettings();
