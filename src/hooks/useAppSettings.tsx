@@ -11,7 +11,7 @@ interface AppSettings {
 interface AppSettingsContextType {
   settings: AppSettings;
   loading: boolean;
-  updateSettings: (updates: Partial<Pick<AppSettings, "app_name" | "logo_url">>) => Promise<{ error: string | null }>;
+  updateSettings: (updates: Partial<Pick<AppSettings, "app_name" | "logo_url" | "currency">>) => Promise<{ error: string | null }>;
 }
 
 const defaults: AppSettings = { id: "", app_name: "GlowSpa", logo_url: null };
