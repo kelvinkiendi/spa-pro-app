@@ -8,12 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Plus } from "lucide-react";
 import type { NewBooking } from "@/hooks/useBookings";
 import { useBranches } from "@/hooks/useBranches";
-
-const services = [
-  "Gel Manicure", "Classic Manicure", "Pedicure Deluxe", "Gel Pedicure",
-  "Acrylic Full Set", "Acrylic Fill", "Dip Powder", "Nail Art",
-  "Full Spa Package", "Nail Repair",
-];
+import { useServices } from "@/hooks/useServices";
 
 interface AddBookingDialogProps {
   onAdd: (booking: NewBooking) => void;
@@ -25,6 +20,7 @@ interface AddBookingDialogProps {
 export function AddBookingDialog({ onAdd, isLoading, defaultTech, defaultBranch }: AddBookingDialogProps) {
   const [open, setOpen] = useState(false);
   const { branchNames } = useBranches();
+  const { data: services = [] } = useServices();
   const [form, setForm] = useState<NewBooking>({
     client_name: "",
     client_phone: "",
@@ -74,7 +70,7 @@ export function AddBookingDialog({ onAdd, isLoading, defaultTech, defaultBranch 
             <Select required value={form.service} onValueChange={(v) => update("service", v)}>
               <SelectTrigger><SelectValue placeholder="Select a service" /></SelectTrigger>
               <SelectContent>
-                {services.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+                {services.map((s) => <SelectItem key={s.id} value={s.name}>{s.name}</SelectItem>)}
               </SelectContent>
             </Select>
           </div>

@@ -17,11 +17,10 @@ import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import {
   CalendarIcon, Plus, Clock, UserCheck, CalendarOff,
-  Check, X, ChevronLeft, ChevronRight,
+  Check, X, Pencil,
 } from "lucide-react";
 
 const DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-const TECHS = ["Lisa Martinez", "Maria Santos", "Tina Rodriguez", "Jade Williams", "Amy Lee"];
 
 type Schedule = {
   id: string;
@@ -47,13 +46,14 @@ type TimeOffRequest = {
 const Scheduling = () => {
   const [schedules, setSchedules] = useState<Schedule[]>([]);
   const [timeOffRequests, setTimeOffRequests] = useState<TimeOffRequest[]>([]);
+  const [techNames, setTechNames] = useState<string[]>([]);
   const [showAddSchedule, setShowAddSchedule] = useState(false);
   const [showAddTimeOff, setShowAddTimeOff] = useState(false);
   const [selectedTech, setSelectedTech] = useState<string>("all");
+  const [editingSchedule, setEditingSchedule] = useState<Schedule | null>(null);
 
-  // Add schedule form
   const [newSchedule, setNewSchedule] = useState({
-    tech_name: TECHS[0],
+    tech_name: "",
     day_of_week: 1,
     start_time: "09:00",
     end_time: "17:00",
@@ -61,13 +61,21 @@ const Scheduling = () => {
     branch: "main",
   });
 
-  // Time-off form
   const [newTimeOff, setNewTimeOff] = useState({
-    tech_name: TECHS[0],
+    tech_name: "",
     start_date: undefined as Date | undefined,
     end_date: undefined as Date | undefined,
     reason: "",
   });
+
+  const fetchTechNames = async () => {
+    const { data: roles } = await supabase.from("user_roles").select("user_id").eq("role", "nail_tech");
+    if (!roles?.length) { setTechNames([]); return; }
+    const userIds = roles.map(r => r.user_id);
+    const { data: profiles } = await supabase.from("profiles").select("full_name").in("user_id", userIds);
+    const names = (profiles || []).map(p => p.full_name).sort();
+    setTechNames(names);
+  };
 
   const fetchSchedules = async () => {
     const { data } = await supabase.from("staff_schedules").select("*").order("day_of_week");
@@ -80,16 +88,50 @@ const Scheduling = () => {
   };
 
   useEffect(() => {
+    fetchTechNames();
     fetchSchedules();
     fetchTimeOff();
   }, []);
 
-  const addSchedule = async () => {
-    const { error } = await supabase.from("staff_schedules").insert([newSchedule]);
-    if (error) { toast.error("Failed to add schedule"); return; }
-    toast.success("Schedule added");
+  useEffect(() => {
+    if (techNames.length > 0 && !newSchedule.tech_name) {
+      setNewSchedule(p => ({ ...p, tech_name: techNames[0] }));
+      setNewTimeOff(p => ({ ...p, tech_name: techNames[0] }));
+    }
+  }, [techNames]);
+
+  const addOrUpdateSchedule = async () => {
+    if (editingSchedule) {
+      const { error } = await supabase.from("staff_schedules").update({
+        tech_name: newSchedule.tech_name,
+        day_of_week: newSchedule.day_of_week,
+        start_time: newSchedule.start_time,
+        end_time: newSchedule.end_time,
+        is_available: newSchedule.is_available,
+      }).eq("id", editingSchedule.id);
+      if (error) { toast.error("Failed to update"); return; }
+      toast.success("Schedule updated");
+    } else {
+      const { error } = await supabase.from("staff_schedules").insert([newSchedule]);
+      if (error) { toast.error("Failed to add schedule"); return; }
+      toast.success("Schedule added");
+    }
     setShowAddSchedule(false);
+    setEditingSchedule(null);
     fetchSchedules();
+  };
+
+  const openEditSchedule = (s: Schedule) => {
+    setEditingSchedule(s);
+    setNewSchedule({
+      tech_name: s.tech_name,
+      day_of_week: s.day_of_week,
+      start_time: s.start_time.slice(0, 5),
+      end_time: s.end_time.slice(0, 5),
+      is_available: s.is_available,
+      branch: s.branch,
+    });
+    setShowAddSchedule(true);
   };
 
   const addTimeOff = async () => {
@@ -138,28 +180,27 @@ const Scheduling = () => {
             <TabsTrigger value="overview" className="gap-2"><UserCheck className="h-4 w-4" />Team Overview</TabsTrigger>
           </TabsList>
 
-          {/* WEEKLY SCHEDULES */}
           <TabsContent value="schedules" className="space-y-4">
             <div className="flex items-center gap-3 flex-wrap">
               <Select value={selectedTech} onValueChange={setSelectedTech}>
                 <SelectTrigger className="w-[200px]"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Technicians</SelectItem>
-                  {TECHS.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+                  {techNames.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
                 </SelectContent>
               </Select>
-              <Dialog open={showAddSchedule} onOpenChange={setShowAddSchedule}>
+              <Dialog open={showAddSchedule} onOpenChange={(open) => { setShowAddSchedule(open); if (!open) setEditingSchedule(null); }}>
                 <DialogTrigger asChild>
-                  <Button className="gradient-primary text-primary-foreground gap-2"><Plus className="h-4 w-4" />Add Schedule</Button>
+                  <Button className="gradient-primary text-primary-foreground gap-2"><Plus className="h-4 w-4" />{editingSchedule ? "Edit" : "Add"} Schedule</Button>
                 </DialogTrigger>
                 <DialogContent>
-                  <DialogHeader><DialogTitle>Add Weekly Schedule</DialogTitle></DialogHeader>
+                  <DialogHeader><DialogTitle>{editingSchedule ? "Edit Schedule" : "Add Weekly Schedule"}</DialogTitle></DialogHeader>
                   <div className="space-y-4">
                     <div>
                       <Label>Technician</Label>
                       <Select value={newSchedule.tech_name} onValueChange={v => setNewSchedule(p => ({ ...p, tech_name: v }))}>
                         <SelectTrigger><SelectValue /></SelectTrigger>
-                        <SelectContent>{TECHS.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent>
+                        <SelectContent>{techNames.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent>
                       </Select>
                     </div>
                     <div>
@@ -183,13 +224,14 @@ const Scheduling = () => {
                       <Switch checked={newSchedule.is_available} onCheckedChange={v => setNewSchedule(p => ({ ...p, is_available: v }))} />
                       <Label>Available for Bookings</Label>
                     </div>
-                    <Button onClick={addSchedule} className="w-full gradient-primary text-primary-foreground">Save Schedule</Button>
+                    <Button onClick={addOrUpdateSchedule} className="w-full gradient-primary text-primary-foreground">
+                      {editingSchedule ? "Update Schedule" : "Save Schedule"}
+                    </Button>
                   </div>
                 </DialogContent>
               </Dialog>
             </div>
 
-            {/* Schedule Grid */}
             <div className="rounded-xl bg-card shadow-card border overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="w-full">
@@ -215,7 +257,8 @@ const Scheduling = () => {
                             {s.is_available ? "Available" : "Unavailable"}
                           </Badge>
                         </td>
-                        <td className="p-3 text-right">
+                        <td className="p-3 text-right flex gap-1 justify-end">
+                          <Button variant="ghost" size="sm" onClick={() => openEditSchedule(s)}><Pencil className="h-4 w-4" /></Button>
                           <Button variant="ghost" size="sm" onClick={() => deleteSchedule(s.id)} className="text-destructive hover:text-destructive">Remove</Button>
                         </td>
                       </tr>
@@ -226,7 +269,6 @@ const Scheduling = () => {
             </div>
           </TabsContent>
 
-          {/* TIME-OFF REQUESTS */}
           <TabsContent value="timeoff" className="space-y-4">
             <div className="flex justify-end">
               <Dialog open={showAddTimeOff} onOpenChange={setShowAddTimeOff}>
@@ -240,7 +282,7 @@ const Scheduling = () => {
                       <Label>Technician</Label>
                       <Select value={newTimeOff.tech_name} onValueChange={v => setNewTimeOff(p => ({ ...p, tech_name: v }))}>
                         <SelectTrigger><SelectValue /></SelectTrigger>
-                        <SelectContent>{TECHS.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent>
+                        <SelectContent>{techNames.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent>
                       </Select>
                     </div>
                     <div className="grid grid-cols-2 gap-3">
@@ -312,10 +354,9 @@ const Scheduling = () => {
             </div>
           </TabsContent>
 
-          {/* TEAM OVERVIEW */}
           <TabsContent value="overview" className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-              {TECHS.map(tech => {
+              {techNames.map(tech => {
                 const techSchedules = schedules.filter(s => s.tech_name === tech);
                 const pendingTimeOff = timeOffRequests.filter(r => r.tech_name === tech && r.status === "pending").length;
                 const approvedTimeOff = timeOffRequests.filter(r => r.tech_name === tech && r.status === "approved").length;
@@ -347,6 +388,11 @@ const Scheduling = () => {
                   </div>
                 );
               })}
+              {techNames.length === 0 && (
+                <div className="col-span-full rounded-xl bg-card p-8 shadow-card border text-center text-muted-foreground">
+                  No technicians found. Add nail techs in Settings to manage schedules.
+                </div>
+              )}
             </div>
           </TabsContent>
         </Tabs>

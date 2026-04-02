@@ -17,18 +17,21 @@ export type Database = {
       app_settings: {
         Row: {
           app_name: string
+          currency: string
           id: string
           logo_url: string | null
           updated_at: string
         }
         Insert: {
           app_name?: string
+          currency?: string
           id?: string
           logo_url?: string | null
           updated_at?: string
         }
         Update: {
           app_name?: string
+          currency?: string
           id?: string
           logo_url?: string | null
           updated_at?: string
@@ -309,6 +312,39 @@ export type Database = {
           id?: string
           name?: string
           report_type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      services: {
+        Row: {
+          category: string
+          created_at: string
+          duration_minutes: number
+          id: string
+          is_active: boolean
+          name: string
+          price: number
+          updated_at: string
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          duration_minutes?: number
+          id?: string
+          is_active?: boolean
+          name: string
+          price?: number
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          duration_minutes?: number
+          id?: string
+          is_active?: boolean
+          name?: string
+          price?: number
           updated_at?: string
         }
         Relationships: []

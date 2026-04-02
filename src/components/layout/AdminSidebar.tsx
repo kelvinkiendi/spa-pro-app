@@ -27,6 +27,7 @@ const navItems = [
   { title: "Bookings", icon: Calendar, path: "/admin/bookings" },
   { title: "Nail Techs", icon: Scissors, path: "/admin/technicians" },
   { title: "Clients", icon: Users, path: "/admin/clients" },
+  { title: "Services", icon: Sparkles, path: "/admin/services" },
   { title: "Inventory", icon: Package, path: "/admin/inventory" },
   { title: "Finances", icon: DollarSign, path: "/admin/finances" },
   { title: "Loyalty", icon: Gift, path: "/admin/loyalty" },
@@ -37,7 +38,7 @@ const navItems = [
   { title: "Settings", icon: Settings, path: "/admin/settings" },
 ];
 
-export function AdminSidebar() {
+export function AdminSidebar({ onNavigate }: { onNavigate?: () => void } = {}) {
   const [collapsed, setCollapsed] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
@@ -87,6 +88,7 @@ export function AdminSidebar() {
             <NavLink
               key={item.path}
               to={item.path}
+              onClick={onNavigate}
               className={cn(
                 "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200",
                 isActive

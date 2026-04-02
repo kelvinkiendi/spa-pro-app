@@ -7,11 +7,15 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Upload, Sparkles, Save } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
+const currencies = ["KES", "USD", "EUR", "GBP", "ZAR", "NGN", "TZS", "UGX", "GHS", "INR", "AED", "CAD", "AUD"];
 
 export function BrandingSettings() {
   const { settings, updateSettings } = useAppSettings();
   const [appName, setAppName] = useState(settings.app_name);
   const [logoUrl, setLogoUrl] = useState(settings.logo_url || "");
+  const [currency, setCurrency] = useState(settings.currency || "KES");
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -42,6 +46,7 @@ export function BrandingSettings() {
     const { error } = await updateSettings({
       app_name: appName,
       logo_url: logoUrl || null,
+      currency,
     });
     if (error) {
       toast({ title: "Error", description: error, variant: "destructive" });
@@ -85,6 +90,16 @@ export function BrandingSettings() {
               )}
             </div>
           </div>
+        </div>
+
+        <div className="space-y-2">
+          <Label>Currency</Label>
+          <Select value={currency} onValueChange={setCurrency}>
+            <SelectTrigger className="w-[180px]"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              {currencies.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+            </SelectContent>
+          </Select>
         </div>
 
         <Button onClick={handleSave} disabled={saving} className="gap-2">

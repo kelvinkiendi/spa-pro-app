@@ -27,6 +27,7 @@ const Finances = lazy(() => import("./pages/admin/Finances"));
 const Loyalty = lazy(() => import("./pages/admin/Loyalty"));
 const Analytics = lazy(() => import("./pages/admin/Analytics"));
 const Scheduling = lazy(() => import("./pages/admin/Scheduling"));
+const AdminServices = lazy(() => import("./pages/admin/Services"));
 const Reports = lazy(() => import("./pages/admin/Reports"));
 const Reminders = lazy(() => import("./pages/admin/Reminders"));
 const AdminSettings = lazy(() => import("./pages/admin/Settings"));
@@ -44,6 +45,7 @@ const TechBookings = lazy(() => import("./pages/tech/Bookings"));
 const TechSales = lazy(() => import("./pages/tech/Sales"));
 const TechCommission = lazy(() => import("./pages/tech/Commission"));
 const TechRatings = lazy(() => import("./pages/tech/Ratings"));
+const TechSchedule = lazy(() => import("./pages/tech/Schedule"));
 
 const queryClient = new QueryClient();
 
@@ -84,6 +86,7 @@ const App = () => (
               <Route path="/admin/loyalty" element={<ProtectedRoute allowedRoles={["admin"]} loginPath="/admin-login"><Loyalty /></ProtectedRoute>} />
               <Route path="/admin/analytics" element={<ProtectedRoute allowedRoles={["admin"]} loginPath="/admin-login"><Analytics /></ProtectedRoute>} />
               <Route path="/admin/scheduling" element={<ProtectedRoute allowedRoles={["admin"]} loginPath="/admin-login"><Scheduling /></ProtectedRoute>} />
+              <Route path="/admin/services" element={<ProtectedRoute allowedRoles={["admin"]} loginPath="/admin-login"><AdminServices /></ProtectedRoute>} />
               <Route path="/admin/reports" element={<ProtectedRoute allowedRoles={["admin"]} loginPath="/admin-login"><Reports /></ProtectedRoute>} />
               <Route path="/admin/reminders" element={<ProtectedRoute allowedRoles={["admin"]} loginPath="/admin-login"><Reminders /></ProtectedRoute>} />
               <Route path="/admin/settings" element={<ProtectedRoute allowedRoles={["admin"]} loginPath="/admin-login"><AdminSettings /></ProtectedRoute>} />
@@ -103,6 +106,7 @@ const App = () => (
               <Route path="/tech/sales" element={<ProtectedRoute allowedRoles={["nail_tech"]} loginPath="/tech-login"><TechSales /></ProtectedRoute>} />
               <Route path="/tech/commission" element={<ProtectedRoute allowedRoles={["nail_tech"]} loginPath="/tech-login"><TechCommission /></ProtectedRoute>} />
               <Route path="/tech/ratings" element={<ProtectedRoute allowedRoles={["nail_tech"]} loginPath="/tech-login"><TechRatings /></ProtectedRoute>} />
+              <Route path="/tech/schedule" element={<ProtectedRoute allowedRoles={["nail_tech"]} loginPath="/tech-login"><TechSchedule /></ProtectedRoute>} />
 
               <Route path="*" element={<NotFound />} />
             </Routes>
