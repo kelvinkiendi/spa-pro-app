@@ -21,7 +21,7 @@ import {
 } from "lucide-react";
 
 const DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-const TECHS = ["Lisa Martinez", "Maria Santos", "Tina Rodriguez", "Jade Williams", "Amy Lee"];
+// Techs are fetched from profiles
 
 type Schedule = {
   id: string;
