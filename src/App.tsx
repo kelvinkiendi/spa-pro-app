@@ -27,6 +27,7 @@ const Finances = lazy(() => import("./pages/admin/Finances"));
 const Loyalty = lazy(() => import("./pages/admin/Loyalty"));
 const Analytics = lazy(() => import("./pages/admin/Analytics"));
 const Scheduling = lazy(() => import("./pages/admin/Scheduling"));
+const AdminServices = lazy(() => import("./pages/admin/Services"));
 const Reports = lazy(() => import("./pages/admin/Reports"));
 const Reminders = lazy(() => import("./pages/admin/Reminders"));
 const AdminSettings = lazy(() => import("./pages/admin/Settings"));
