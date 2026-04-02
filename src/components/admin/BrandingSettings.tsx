@@ -46,6 +46,7 @@ export function BrandingSettings() {
     const { error } = await updateSettings({
       app_name: appName,
       logo_url: logoUrl || null,
+      currency,
     });
     if (error) {
       toast({ title: "Error", description: error, variant: "destructive" });
