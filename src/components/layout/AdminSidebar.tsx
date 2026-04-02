@@ -27,6 +27,7 @@ const navItems = [
   { title: "Bookings", icon: Calendar, path: "/admin/bookings" },
   { title: "Nail Techs", icon: Scissors, path: "/admin/technicians" },
   { title: "Clients", icon: Users, path: "/admin/clients" },
+  { title: "Services", icon: Sparkles, path: "/admin/services" },
   { title: "Inventory", icon: Package, path: "/admin/inventory" },
   { title: "Finances", icon: DollarSign, path: "/admin/finances" },
   { title: "Loyalty", icon: Gift, path: "/admin/loyalty" },
