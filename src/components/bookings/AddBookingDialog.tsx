@@ -20,6 +20,7 @@ interface AddBookingDialogProps {
 export function AddBookingDialog({ onAdd, isLoading, defaultTech, defaultBranch }: AddBookingDialogProps) {
   const [open, setOpen] = useState(false);
   const { branchNames } = useBranches();
+  const { data: services = [] } = useServices();
   const [form, setForm] = useState<NewBooking>({
     client_name: "",
     client_phone: "",
