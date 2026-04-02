@@ -106,6 +106,7 @@ const App = () => (
               <Route path="/tech/sales" element={<ProtectedRoute allowedRoles={["nail_tech"]} loginPath="/tech-login"><TechSales /></ProtectedRoute>} />
               <Route path="/tech/commission" element={<ProtectedRoute allowedRoles={["nail_tech"]} loginPath="/tech-login"><TechCommission /></ProtectedRoute>} />
               <Route path="/tech/ratings" element={<ProtectedRoute allowedRoles={["nail_tech"]} loginPath="/tech-login"><TechRatings /></ProtectedRoute>} />
+              <Route path="/tech/schedule" element={<ProtectedRoute allowedRoles={["nail_tech"]} loginPath="/tech-login"><TechSchedule /></ProtectedRoute>} />
 
               <Route path="*" element={<NotFound />} />
             </Routes>
