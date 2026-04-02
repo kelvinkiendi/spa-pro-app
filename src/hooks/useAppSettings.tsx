@@ -14,7 +14,7 @@ interface AppSettingsContextType {
   updateSettings: (updates: Partial<Pick<AppSettings, "app_name" | "logo_url" | "currency">>) => Promise<{ error: string | null }>;
 }
 
-const defaults: AppSettings = { id: "", app_name: "GlowSpa", logo_url: null };
+const defaults: AppSettings = { id: "", app_name: "GlowSpa", logo_url: null, currency: "KES" };
 
 const AppSettingsContext = createContext<AppSettingsContextType>({
   settings: defaults,
