@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import { AppSettingsProvider } from "@/hooks/useAppSettings";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
+import { BranchFilterProvider } from "@/contexts/BranchFilterContext";
 import { Loader2 } from "lucide-react";
 
 // Lazy-loaded pages for fast initial load
@@ -76,20 +77,20 @@ const App = () => (
               <Route path="/manager-login" element={<ManagerLogin />} />
               <Route path="/tech-login" element={<TechLogin />} />
 
-              {/* Admin routes */}
-              <Route path="/admin" element={<ProtectedRoute allowedRoles={["admin"]} loginPath="/admin-login"><Dashboard /></ProtectedRoute>} />
-              <Route path="/admin/bookings" element={<ProtectedRoute allowedRoles={["admin"]} loginPath="/admin-login"><Bookings /></ProtectedRoute>} />
-              <Route path="/admin/technicians" element={<ProtectedRoute allowedRoles={["admin"]} loginPath="/admin-login"><Technicians /></ProtectedRoute>} />
-              <Route path="/admin/clients" element={<ProtectedRoute allowedRoles={["admin"]} loginPath="/admin-login"><Clients /></ProtectedRoute>} />
-              <Route path="/admin/inventory" element={<ProtectedRoute allowedRoles={["admin"]} loginPath="/admin-login"><Inventory /></ProtectedRoute>} />
-              <Route path="/admin/finances" element={<ProtectedRoute allowedRoles={["admin"]} loginPath="/admin-login"><Finances /></ProtectedRoute>} />
-              <Route path="/admin/loyalty" element={<ProtectedRoute allowedRoles={["admin"]} loginPath="/admin-login"><Loyalty /></ProtectedRoute>} />
-              <Route path="/admin/analytics" element={<ProtectedRoute allowedRoles={["admin"]} loginPath="/admin-login"><Analytics /></ProtectedRoute>} />
-              <Route path="/admin/scheduling" element={<ProtectedRoute allowedRoles={["admin"]} loginPath="/admin-login"><Scheduling /></ProtectedRoute>} />
-              <Route path="/admin/services" element={<ProtectedRoute allowedRoles={["admin"]} loginPath="/admin-login"><AdminServices /></ProtectedRoute>} />
-              <Route path="/admin/reports" element={<ProtectedRoute allowedRoles={["admin"]} loginPath="/admin-login"><Reports /></ProtectedRoute>} />
-              <Route path="/admin/reminders" element={<ProtectedRoute allowedRoles={["admin"]} loginPath="/admin-login"><Reminders /></ProtectedRoute>} />
-              <Route path="/admin/settings" element={<ProtectedRoute allowedRoles={["admin"]} loginPath="/admin-login"><AdminSettings /></ProtectedRoute>} />
+              {/* Admin routes - wrapped in BranchFilterProvider */}
+              <Route path="/admin" element={<BranchFilterProvider><ProtectedRoute allowedRoles={["admin"]} loginPath="/admin-login"><Dashboard /></ProtectedRoute></BranchFilterProvider>} />
+              <Route path="/admin/bookings" element={<BranchFilterProvider><ProtectedRoute allowedRoles={["admin"]} loginPath="/admin-login"><Bookings /></ProtectedRoute></BranchFilterProvider>} />
+              <Route path="/admin/technicians" element={<BranchFilterProvider><ProtectedRoute allowedRoles={["admin"]} loginPath="/admin-login"><Technicians /></ProtectedRoute></BranchFilterProvider>} />
+              <Route path="/admin/clients" element={<BranchFilterProvider><ProtectedRoute allowedRoles={["admin"]} loginPath="/admin-login"><Clients /></ProtectedRoute></BranchFilterProvider>} />
+              <Route path="/admin/inventory" element={<BranchFilterProvider><ProtectedRoute allowedRoles={["admin"]} loginPath="/admin-login"><Inventory /></ProtectedRoute></BranchFilterProvider>} />
+              <Route path="/admin/finances" element={<BranchFilterProvider><ProtectedRoute allowedRoles={["admin"]} loginPath="/admin-login"><Finances /></ProtectedRoute></BranchFilterProvider>} />
+              <Route path="/admin/loyalty" element={<BranchFilterProvider><ProtectedRoute allowedRoles={["admin"]} loginPath="/admin-login"><Loyalty /></ProtectedRoute></BranchFilterProvider>} />
+              <Route path="/admin/analytics" element={<BranchFilterProvider><ProtectedRoute allowedRoles={["admin"]} loginPath="/admin-login"><Analytics /></ProtectedRoute></BranchFilterProvider>} />
+              <Route path="/admin/scheduling" element={<BranchFilterProvider><ProtectedRoute allowedRoles={["admin"]} loginPath="/admin-login"><Scheduling /></ProtectedRoute></BranchFilterProvider>} />
+              <Route path="/admin/services" element={<BranchFilterProvider><ProtectedRoute allowedRoles={["admin"]} loginPath="/admin-login"><AdminServices /></ProtectedRoute></BranchFilterProvider>} />
+              <Route path="/admin/reports" element={<BranchFilterProvider><ProtectedRoute allowedRoles={["admin"]} loginPath="/admin-login"><Reports /></ProtectedRoute></BranchFilterProvider>} />
+              <Route path="/admin/reminders" element={<BranchFilterProvider><ProtectedRoute allowedRoles={["admin"]} loginPath="/admin-login"><Reminders /></ProtectedRoute></BranchFilterProvider>} />
+              <Route path="/admin/settings" element={<BranchFilterProvider><ProtectedRoute allowedRoles={["admin"]} loginPath="/admin-login"><AdminSettings /></ProtectedRoute></BranchFilterProvider>} />
 
               {/* Manager routes */}
               <Route path="/manager" element={<ProtectedRoute allowedRoles={["branch_manager"]} loginPath="/manager-login"><ManagerDashboard /></ProtectedRoute>} />
