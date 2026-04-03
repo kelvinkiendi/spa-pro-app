@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import { AppSettingsProvider } from "@/hooks/useAppSettings";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
+import { BranchFilterProvider } from "@/contexts/BranchFilterContext";
 import { Loader2 } from "lucide-react";
 
 // Lazy-loaded pages for fast initial load
