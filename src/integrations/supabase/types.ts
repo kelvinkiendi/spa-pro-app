@@ -226,6 +226,65 @@ export type Database = {
           },
         ]
       }
+      mpesa_transactions: {
+        Row: {
+          amount: number
+          booking_id: string | null
+          checkout_request_id: string | null
+          created_at: string
+          id: string
+          merchant_request_id: string | null
+          metadata: Json | null
+          phone_number: string
+          receipt_number: string | null
+          result_code: number | null
+          result_desc: string | null
+          status: Database["public"]["Enums"]["mpesa_status"]
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          amount: number
+          booking_id?: string | null
+          checkout_request_id?: string | null
+          created_at?: string
+          id?: string
+          merchant_request_id?: string | null
+          metadata?: Json | null
+          phone_number: string
+          receipt_number?: string | null
+          result_code?: number | null
+          result_desc?: string | null
+          status?: Database["public"]["Enums"]["mpesa_status"]
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          amount?: number
+          booking_id?: string | null
+          checkout_request_id?: string | null
+          created_at?: string
+          id?: string
+          merchant_request_id?: string | null
+          metadata?: Json | null
+          phone_number?: string
+          receipt_number?: string | null
+          result_code?: number | null
+          result_desc?: string | null
+          status?: Database["public"]["Enums"]["mpesa_status"]
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mpesa_transactions_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           branch: string
@@ -385,6 +444,51 @@ export type Database = {
         }
         Relationships: []
       }
+      subscriptions: {
+        Row: {
+          created_at: string
+          current_employee_count: number
+          expires_at: string | null
+          id: string
+          max_employees: number
+          price_monthly: number
+          started_at: string
+          status: Database["public"]["Enums"]["subscription_status"]
+          tier: Database["public"]["Enums"]["subscription_tier"]
+          trial_ends_at: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          current_employee_count?: number
+          expires_at?: string | null
+          id?: string
+          max_employees?: number
+          price_monthly?: number
+          started_at?: string
+          status?: Database["public"]["Enums"]["subscription_status"]
+          tier?: Database["public"]["Enums"]["subscription_tier"]
+          trial_ends_at?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          current_employee_count?: number
+          expires_at?: string | null
+          id?: string
+          max_employees?: number
+          price_monthly?: number
+          started_at?: string
+          status?: Database["public"]["Enums"]["subscription_status"]
+          tier?: Database["public"]["Enums"]["subscription_tier"]
+          trial_ends_at?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       time_off_requests: {
         Row: {
           created_at: string
@@ -503,6 +607,9 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "branch_manager" | "nail_tech"
+      mpesa_status: "pending" | "success" | "failed" | "cancelled"
+      subscription_status: "active" | "trial" | "expired" | "cancelled"
+      subscription_tier: "individual" | "small_salon" | "big_spa" | "enterprise"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -631,6 +738,9 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "branch_manager", "nail_tech"],
+      mpesa_status: ["pending", "success", "failed", "cancelled"],
+      subscription_status: ["active", "trial", "expired", "cancelled"],
+      subscription_tier: ["individual", "small_salon", "big_spa", "enterprise"],
     },
   },
 } as const
