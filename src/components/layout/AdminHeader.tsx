@@ -8,7 +8,7 @@ import { useAuth } from "@/hooks/useAuth";
 
 export function AdminHeader() {
   const { role, fullName, branch } = useAuth();
-  const isAdmin = role === "admin" || role === "owner";
+  const isAdmin = role === "admin" || (role as string) === "owner";
 
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-border glass px-6">
