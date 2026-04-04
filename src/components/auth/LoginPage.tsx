@@ -12,7 +12,7 @@ import { supabase } from "@/integrations/supabase/client";
 interface LoginPageProps {
   title: string;
   subtitle: string;
-  expectedRole: "admin" | "branch_manager" | "nail_tech";
+  expectedRole: "admin" | "branch_manager" | "nail_tech" | "owner" | "receptionist";
   redirectTo: string;
   accentColor: string;
   showBranchSelect?: boolean;
@@ -97,14 +97,21 @@ export function LoginPage({ title, subtitle, expectedRole, redirectTo, accentCol
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4">
-      <Link to="/" className="absolute top-6 left-6 flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
+    <div className="min-h-screen flex items-center justify-center bg-background p-4 relative overflow-hidden">
+      {/* Floating orbs */}
+      <div className="absolute inset-0 z-0 overflow-hidden">
+        <div className="absolute top-1/3 left-1/3 w-72 h-72 rounded-full bg-primary/5 blur-3xl animate-float" />
+        <div className="absolute bottom-1/4 right-1/3 w-64 h-64 rounded-full bg-accent/5 blur-3xl animate-float" style={{ animationDelay: "3s" }} />
+      </div>
+
+      <Link to="/" className="absolute top-6 left-6 z-20 flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
         <ArrowLeft className="h-4 w-4" />
         Back to portal
       </Link>
-      <div className="w-full max-w-md">
+
+      <div className="w-full max-w-md relative z-10">
         <div className="text-center mb-8">
-          <div className={`inline-flex h-14 w-14 items-center justify-center rounded-2xl ${accentColor} mb-4 overflow-hidden`}>
+          <div className={`inline-flex h-14 w-14 items-center justify-center rounded-2xl ${accentColor} mb-4 overflow-hidden shadow-gold`}>
             {settings.logo_url ? (
               <img src={settings.logo_url} alt={settings.app_name} className="h-full w-full object-contain" />
             ) : (
@@ -115,7 +122,7 @@ export function LoginPage({ title, subtitle, expectedRole, redirectTo, accentCol
           <p className="text-muted-foreground mt-2">{subtitle}</p>
         </div>
 
-        <div className="rounded-2xl bg-card shadow-card border p-8">
+        <div className="rounded-2xl glass-card shadow-card p-8">
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
