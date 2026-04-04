@@ -1,7 +1,7 @@
 import { ReactNode, useState } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import {
-  Calendar, Users, Clock, UserCheck, Scissors, LogOut, ChevronLeft, ChevronRight, Sparkles, ClipboardList, Package, Menu, X,
+  Calendar, Users, Clock, UserCheck, Scissors, LogOut, ChevronLeft, ChevronRight, Sparkles, ClipboardList, Package, Menu, Shield,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { AdminHeader } from "./AdminHeader";
@@ -14,7 +14,7 @@ import { Button } from "@/components/ui/button";
 const navItems = [
   { title: "Dashboard", icon: ClipboardList, path: "/manager" },
   { title: "Bookings", icon: Calendar, path: "/manager/bookings" },
-  { title: "Schedule Techs", icon: Clock, path: "/manager/scheduling" },
+  { title: "Schedule Staff", icon: Clock, path: "/manager/scheduling" },
   { title: "Attendance", icon: UserCheck, path: "/manager/attendance" },
   { title: "Walk-ins", icon: Users, path: "/manager/walkins" },
   { title: "Clients", icon: Scissors, path: "/manager/clients" },
@@ -35,11 +35,11 @@ function SidebarContent({ collapsed, onCollapse, onNavigate }: { collapsed: bool
   return (
     <>
       <div className="flex items-center gap-3 px-5 py-6 border-b border-sidebar-border">
-        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent shrink-0 overflow-hidden">
+        <div className="flex h-9 w-9 items-center justify-center rounded-lg gradient-emerald shrink-0 overflow-hidden">
           {settings.logo_url ? (
             <img src={settings.logo_url} alt={settings.app_name} className="h-full w-full object-contain" />
           ) : (
-            <Sparkles className="h-5 w-5 text-accent-foreground" />
+            <Shield className="h-5 w-5 text-accent-foreground" />
           )}
         </div>
         {!collapsed && (
@@ -63,7 +63,7 @@ function SidebarContent({ collapsed, onCollapse, onNavigate }: { collapsed: bool
               className={cn(
                 "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200",
                 isActive
-                  ? "bg-accent text-accent-foreground shadow-soft"
+                  ? "gradient-emerald text-accent-foreground shadow-soft"
                   : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
               )}
             >
@@ -102,7 +102,7 @@ export function ManagerLayout({ children }: { children: ReactNode }) {
   if (isMobile) {
     return (
       <div className="flex min-h-screen w-full flex-col bg-background">
-        <header className="sticky top-0 z-40 flex h-14 items-center gap-3 border-b bg-card/80 backdrop-blur-md px-4">
+        <header className="sticky top-0 z-40 flex h-14 items-center gap-3 border-b border-border glass px-4">
           <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
             <SheetTrigger asChild>
               <Button variant="ghost" size="icon"><Menu className="h-5 w-5" /></Button>
