@@ -1,7 +1,7 @@
 import { ReactNode, useState } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import {
-  Calendar, DollarSign, Star, TrendingUp, LogOut, ChevronLeft, ChevronRight, Sparkles, BarChart3, Clock, Menu,
+  Calendar, DollarSign, Star, TrendingUp, LogOut, ChevronLeft, ChevronRight, Sparkles, BarChart3, Clock, Menu, Scissors, Banknote,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { AdminHeader } from "./AdminHeader";
@@ -17,6 +17,7 @@ const navItems = [
   { title: "My Schedule", icon: Clock, path: "/tech/schedule" },
   { title: "Sales & Services", icon: TrendingUp, path: "/tech/sales" },
   { title: "Commission", icon: DollarSign, path: "/tech/commission" },
+  { title: "Tips", icon: Banknote, path: "/tech/tips" },
   { title: "Ratings & Feedback", icon: Star, path: "/tech/ratings" },
 ];
 
@@ -34,17 +35,17 @@ function SidebarContent({ collapsed, onCollapse, onNavigate }: { collapsed: bool
   return (
     <>
       <div className="flex items-center gap-3 px-5 py-6 border-b border-sidebar-border">
-        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-sage shrink-0 overflow-hidden">
+        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-secondary shrink-0 overflow-hidden">
           {settings.logo_url ? (
             <img src={settings.logo_url} alt={settings.app_name} className="h-full w-full object-contain" />
           ) : (
-            <Sparkles className="h-5 w-5 text-primary-foreground" />
+            <Scissors className="h-5 w-5 text-secondary-foreground" />
           )}
         </div>
         {!collapsed && (
           <div className="overflow-hidden">
             <h1 className="font-display text-lg font-bold text-sidebar-accent-foreground tracking-tight">{settings.app_name}</h1>
-            <p className="text-xs text-sidebar-foreground">Nail Technician</p>
+            <p className="text-xs text-sidebar-foreground">Staff Portal</p>
           </div>
         )}
       </div>
@@ -62,7 +63,7 @@ function SidebarContent({ collapsed, onCollapse, onNavigate }: { collapsed: bool
               className={cn(
                 "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200",
                 isActive
-                  ? "bg-sage text-primary-foreground shadow-soft"
+                  ? "gradient-primary text-primary-foreground shadow-gold"
                   : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
               )}
             >
@@ -101,7 +102,7 @@ export function TechLayout({ children }: { children: ReactNode }) {
   if (isMobile) {
     return (
       <div className="flex min-h-screen w-full flex-col bg-background">
-        <header className="sticky top-0 z-40 flex h-14 items-center gap-3 border-b bg-card/80 backdrop-blur-md px-4">
+        <header className="sticky top-0 z-40 flex h-14 items-center gap-3 border-b border-border glass px-4">
           <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
             <SheetTrigger asChild>
               <Button variant="ghost" size="icon"><Menu className="h-5 w-5" /></Button>
@@ -110,7 +111,7 @@ export function TechLayout({ children }: { children: ReactNode }) {
               <SidebarContent collapsed={false} onNavigate={() => setMobileOpen(false)} />
             </SheetContent>
           </Sheet>
-          <span className="font-display font-bold text-foreground">Technician</span>
+          <span className="font-display font-bold text-foreground">Staff</span>
         </header>
         <main className="flex-1 overflow-auto p-4">{children}</main>
       </div>

@@ -47,6 +47,7 @@ const TechSales = lazy(() => import("./pages/tech/Sales"));
 const TechCommission = lazy(() => import("./pages/tech/Commission"));
 const TechRatings = lazy(() => import("./pages/tech/Ratings"));
 const TechSchedule = lazy(() => import("./pages/tech/Schedule"));
+const TechTips = lazy(() => import("./pages/tech/Tips"));
 
 const queryClient = new QueryClient();
 
@@ -106,6 +107,7 @@ const App = () => (
               <Route path="/tech/bookings" element={<ProtectedRoute allowedRoles={["nail_tech"]} loginPath="/tech-login"><TechBookings /></ProtectedRoute>} />
               <Route path="/tech/sales" element={<ProtectedRoute allowedRoles={["nail_tech"]} loginPath="/tech-login"><TechSales /></ProtectedRoute>} />
               <Route path="/tech/commission" element={<ProtectedRoute allowedRoles={["nail_tech"]} loginPath="/tech-login"><TechCommission /></ProtectedRoute>} />
+              <Route path="/tech/tips" element={<ProtectedRoute allowedRoles={["nail_tech"]} loginPath="/tech-login"><TechTips /></ProtectedRoute>} />
               <Route path="/tech/ratings" element={<ProtectedRoute allowedRoles={["nail_tech"]} loginPath="/tech-login"><TechRatings /></ProtectedRoute>} />
               <Route path="/tech/schedule" element={<ProtectedRoute allowedRoles={["nail_tech"]} loginPath="/tech-login"><TechSchedule /></ProtectedRoute>} />
 

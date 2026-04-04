@@ -606,7 +606,12 @@ export type Database = {
       }
     }
     Enums: {
-      app_role: "admin" | "branch_manager" | "nail_tech"
+      app_role:
+        | "admin"
+        | "branch_manager"
+        | "nail_tech"
+        | "owner"
+        | "receptionist"
       mpesa_status: "pending" | "success" | "failed" | "cancelled"
       subscription_status: "active" | "trial" | "expired" | "cancelled"
       subscription_tier: "individual" | "small_salon" | "big_spa" | "enterprise"
@@ -737,7 +742,13 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "branch_manager", "nail_tech"],
+      app_role: [
+        "admin",
+        "branch_manager",
+        "nail_tech",
+        "owner",
+        "receptionist",
+      ],
       mpesa_status: ["pending", "success", "failed", "cancelled"],
       subscription_status: ["active", "trial", "expired", "cancelled"],
       subscription_tier: ["individual", "small_salon", "big_spa", "enterprise"],

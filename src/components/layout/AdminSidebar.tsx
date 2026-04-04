@@ -1,22 +1,9 @@
 import { useState } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import {
-  LayoutDashboard,
-  Calendar,
-  Users,
-  Scissors,
-  Package,
-  DollarSign,
-  Gift,
-  BarChart3,
-  Settings,
-  ChevronLeft,
-  ChevronRight,
-  Sparkles,
-  CalendarClock,
-  FileBarChart,
-  Bell,
-  LogOut,
+  LayoutDashboard, Calendar, Users, Scissors, Package, DollarSign, Gift,
+  BarChart3, Settings, ChevronLeft, ChevronRight, Sparkles, CalendarClock,
+  FileBarChart, Bell, LogOut, Crown,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
@@ -25,7 +12,7 @@ import { useAppSettings } from "@/hooks/useAppSettings";
 const navItems = [
   { title: "Dashboard", icon: LayoutDashboard, path: "/admin" },
   { title: "Bookings", icon: Calendar, path: "/admin/bookings" },
-  { title: "Nail Techs", icon: Scissors, path: "/admin/technicians" },
+  { title: "Staff", icon: Scissors, path: "/admin/technicians" },
   { title: "Clients", icon: Users, path: "/admin/clients" },
   { title: "Services", icon: Sparkles, path: "/admin/services" },
   { title: "Inventory", icon: Package, path: "/admin/inventory" },
@@ -63,7 +50,7 @@ export function AdminSidebar({ onNavigate }: { onNavigate?: () => void } = {}) {
           {settings.logo_url ? (
             <img src={settings.logo_url} alt={settings.app_name} className="h-full w-full object-contain" />
           ) : (
-            <Sparkles className="h-5 w-5 text-sidebar-primary-foreground" />
+            <Crown className="h-5 w-5 text-sidebar-primary-foreground" />
           )}
         </div>
         {!collapsed && (
@@ -71,7 +58,7 @@ export function AdminSidebar({ onNavigate }: { onNavigate?: () => void } = {}) {
             <h1 className="font-display text-lg font-bold text-sidebar-accent-foreground tracking-tight">
               {settings.app_name}
             </h1>
-            <p className="text-xs text-sidebar-foreground">Management</p>
+            <p className="text-xs text-sidebar-foreground">Owner Portal</p>
           </div>
         )}
       </div>
@@ -92,7 +79,7 @@ export function AdminSidebar({ onNavigate }: { onNavigate?: () => void } = {}) {
               className={cn(
                 "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200",
                 isActive
-                  ? "gradient-primary text-sidebar-primary-foreground shadow-soft"
+                  ? "gradient-primary text-sidebar-primary-foreground shadow-gold"
                   : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
               )}
             >

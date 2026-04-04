@@ -8,23 +8,23 @@ import { useAuth } from "@/hooks/useAuth";
 
 export function AdminHeader() {
   const { role, fullName, branch } = useAuth();
-  const isAdmin = role === "admin";
+  const isAdmin = role === "admin" || (role as string) === "owner";
 
   return (
-    <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b bg-card/80 backdrop-blur-md px-6">
+    <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-border glass px-6">
       <div className="flex items-center gap-4 flex-1">
         <div className="relative max-w-md flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder="Search bookings, clients, services..."
-            className="pl-10 bg-muted/50 border-0 focus-visible:ring-1 focus-visible:ring-primary/30"
+            className="pl-10 bg-muted/50 border-border focus-visible:ring-1 focus-visible:ring-primary/30"
           />
         </div>
       </div>
 
       <div className="flex items-center gap-3">
         {isAdmin ? <AdminBranchSelector /> : (
-          <div className="flex items-center gap-2 text-sm text-muted-foreground border rounded-md px-3 py-1.5">
+          <div className="flex items-center gap-2 text-sm text-muted-foreground border border-border rounded-md px-3 py-1.5">
             <Building2 className="h-4 w-4" />
             <span className="font-medium text-foreground">{branch || "Unassigned"}</span>
           </div>
@@ -38,7 +38,7 @@ export function AdminHeader() {
         </Button>
 
         <div className="flex items-center gap-2">
-          <div className="h-8 w-8 rounded-full gradient-gold flex items-center justify-center text-sm font-semibold text-foreground">
+          <div className="h-8 w-8 rounded-full gradient-primary flex items-center justify-center text-sm font-semibold text-primary-foreground">
             {fullName?.[0]?.toUpperCase() || "U"}
           </div>
         </div>

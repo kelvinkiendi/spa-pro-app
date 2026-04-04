@@ -12,16 +12,16 @@ interface StatCardProps {
 
 export function StatCard({ title, value, change, changeType = "neutral", icon: Icon, className }: StatCardProps) {
   return (
-    <div className={cn("rounded-xl bg-card p-5 shadow-card border animate-fade-in", className)}>
+    <div className={cn("rounded-xl glass-card p-5 shadow-card animate-fade-in", className)}>
       <div className="flex items-start justify-between">
         <div>
           <p className="text-sm font-medium text-muted-foreground">{title}</p>
-          <p className="mt-2 text-2xl font-display font-bold text-card-foreground">{value}</p>
+          <p className="mt-2 text-2xl font-display font-bold text-foreground">{value}</p>
           {change && (
             <p
               className={cn(
                 "mt-1 text-xs font-medium",
-                changeType === "positive" && "text-sage",
+                changeType === "positive" && "text-accent",
                 changeType === "negative" && "text-destructive",
                 changeType === "neutral" && "text-muted-foreground"
               )}
@@ -30,7 +30,7 @@ export function StatCard({ title, value, change, changeType = "neutral", icon: I
             </p>
           )}
         </div>
-        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blush">
+        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
           <Icon className="h-5 w-5 text-primary" />
         </div>
       </div>
